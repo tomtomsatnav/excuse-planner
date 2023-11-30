@@ -26,7 +26,10 @@
 
 // TODO: Event block functions - regenerate excuse function
 
-// TODO: Out of Excuses functions 
+// TODO: Out of Excuses functions - modal function to inform users they are out of excuses 
 
-// TODO: Delete event functions 
+// TODO: Out of Excuses functions - function to let users input their own excuse
 
+// TODO: Delete event functions - function to delete event from calendar
+
+// TODO: Delete event functions - function to delete event from local storage
