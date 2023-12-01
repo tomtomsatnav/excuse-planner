@@ -73,20 +73,27 @@ function generateWeek() {
     weekContainer.setAttribute('data-dateIDs', selectedDates.toString())
 
     // ** creates previous and next buttons **//
+    createPreviousWeekButton()
+    createNextWeekButton()
+};
+
+function createPreviousWeekButton() {
     var previousWeekButton = document.createElement('button')
     var leftArrowIcon = document.createElement('i')
     leftArrowIcon.setAttribute('class', 'fa-solid fa-chevron-left')
     previousWeekButton.append(leftArrowIcon)
     weekContainer.prepend(previousWeekButton)
     previousWeekButton.addEventListener('click', previousWeek)
+}
 
+function createNextWeekButton() {
     var nextWeekButton = document.createElement('button')
     var rightArrowIcon = document.createElement('i')
     rightArrowIcon.setAttribute('class', 'fa-solid fa-chevron-right')
     nextWeekButton.append(rightArrowIcon)
     weekContainer.append(nextWeekButton)
     nextWeekButton.addEventListener('click', nextWeek)
-};
+}
 
 function previousWeek() {
     var weekChange = weekContainer.getAttribute('data-week-change')
@@ -125,6 +132,8 @@ function highlightCurrentDay() {
 
 
 // TODO: Holiday API functions - fetch and match formattedDate to holiday
+
+
 
 // TODO: Holiday API functions - display holiday to calendar 
 
