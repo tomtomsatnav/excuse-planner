@@ -2,7 +2,8 @@ dayjs.extend(window.dayjs_plugin_weekOfYear); //adds dayjs week of year api plug
 
 // TODO: Add html element selectors here:
 // TODO: Timeslot functions - generate unique id / generate the timeblock with id
-var weekContainer = document.querySelector('#week-container');
+var timeContainer = document.querySelector('#time-container');
+var buttonsContainer = document.querySelector('#buttons-container')
 var sunTimeSection = document.querySelector('#sun-hours');
 var monTimeSection = document.querySelector('#mon-hours');
 var tueTimeSection = document.querySelector('#tue-hours');
@@ -10,8 +11,17 @@ var wedTimeSection = document.querySelector('#wed-hours');
 var thurTimeSection = document.querySelector('#thur-hours');
 var friTimeSection = document.querySelector('#fri-hours');
 var satTimeSection = document.querySelector('#sat-hours');
+var sunHeader = document.querySelector('#sun-header');
+var monHeader = document.querySelector('#mon-header');
+var tueHeader = document.querySelector('#tue-header');
+var wedHeader = document.querySelector('#wed-header');
+var thurHeader = document.querySelector('#thur-header');
+var friHeader = document.querySelector('#fri-header');
+var satHeader = document.querySelector('#sat-header');
 
 var timeSlotSections = [sunTimeSection, monTimeSection, tueTimeSection, wedTimeSection, thurTimeSection, friTimeSection, satTimeSection];
+var weekHeaders = [sunHeader, monHeader, tueHeader, wedHeader, thurHeader, friHeader, satHeader];
+
 
 function generateTimeSlots() {
     for (let j = 0; j < timeSlotSections.length; j++) {
@@ -22,11 +32,11 @@ function generateTimeSlots() {
         };
     }
 
-    var selectedDates = weekContainer.getAttribute('data-dateIDs').split(',')
+    var selectedDates = timeContainer.getAttribute('data-dateIDs').split(',')
     for (let j = 0; j < timeSlotSections.length; j++) {
         for (let i = 0; i < 24; i++) {
             // create time slot div
-            var newTimeSlot = document.createElement('div');
+            var newTimeSlot = document.createElement('li');
             timeSlotID = selectedDates[j] + i
             newTimeSlot.textContent = timeSlotID;
             newTimeSlot.setAttribute("id", timeSlotID)
@@ -39,84 +49,93 @@ function generateTimeSlots() {
 // TODO: Dayjs functions - get current week and display correct formattedDates
 // TODO: Dayjs functions - get next week and display next week formattedDates
 // TODO: Dayjs functions - get previous week formattedDates and display previous week formattedDates
-weekContainer.setAttribute('data-week-change', 0);
+timeContainer.setAttribute('data-week-change', 0);
 
 function generateWeek() {
-    // **checks and removes any existing divs to recreate new week**//
-    if (weekContainer.children.length > 0) {
-        while (weekContainer.firstChild) {
-            weekContainer.removeChild(weekContainer.lastChild);
-        };
-    };
-
     // ** variables to store important date data **//
-    var weekChange = weekContainer.getAttribute('data-week-change')
+    var weekChange = timeContainer.getAttribute('data-week-change');
     var thisWeek = dayjs().week();
-    var selectedWeek = thisWeek + parseInt(weekChange)
-    var selectedDates = []
+    var selectedWeek = thisWeek + parseInt(weekChange);
+    var selectedDates = [];
     // console.log("selected week is:" + selectedWeek);
     // console.log("change week tracker is:" +weekChange);
 
     // ** creates selected week dates, stores it into an array and displays formatted date **//
     for (let i = 0; i < 7; i++) {
         formattedDate = dayjs().week(selectedWeek).startOf('week').add(i, 'day').format('ddd D.M.YY');
-        dateID = 'd' + dayjs().week(selectedWeek).startOf('week').add(i, 'day').format('DDMMYY')
+        dateID = 'd' + dayjs().week(selectedWeek).startOf('week').add(i, 'day').format('DDMMYY');
         // console.log(formattedDate);
         // console.log(dateID);
-        selectedDates.push(dateID)
-        var newDayDiv = document.createElement('div')
-        newDayDiv.textContent = formattedDate
-        weekContainer.append(newDayDiv)
-    }
+        selectedDates.push(dateID);
+        weekHeaders[i].textContent = formattedDate;
+    };
 
     // console.log(selectedDates.toString());
-    weekContainer.setAttribute('data-dateIDs', selectedDates.toString())
-
-    // ** creates previous and next buttons **//
-    createPreviousWeekButton()
-    createNextWeekButton()
+    timeContainer.setAttribute('data-dateIDs', selectedDates.toString());
 };
 
 function createPreviousWeekButton() {
-    var previousWeekButton = document.createElement('button')
-    var leftArrowIcon = document.createElement('i')
-    leftArrowIcon.setAttribute('class', 'fa-solid fa-chevron-left')
-    previousWeekButton.append(leftArrowIcon)
-    weekContainer.prepend(previousWeekButton)
-    previousWeekButton.addEventListener('click', previousWeek)
-}
+    var previousWeekButton = document.createElement('button');
+    var leftArrowIcon = document.createElement('i');
+    leftArrowIcon.setAttribute('class', 'fa-solid fa-chevron-left');
+    previousWeekButton.setAttribute('class', 'btn');
+    previousWeekButton.append(leftArrowIcon);
+    buttonsContainer.append(previousWeekButton);
+    previousWeekButton.addEventListener('click', previousWeek);
+};
+
+function createTodayWeekButton() {
+    var TodayWeekButton = document.createElement('button');
+    TodayWeekButton.textContent = "Today's Week";
+    TodayWeekButton.setAttribute('class', 'btn');
+    buttonsContainer.append(TodayWeekButton);
+    TodayWeekButton.addEventListener('click', todayWeek);
+};
 
 function createNextWeekButton() {
-    var nextWeekButton = document.createElement('button')
-    var rightArrowIcon = document.createElement('i')
-    rightArrowIcon.setAttribute('class', 'fa-solid fa-chevron-right')
-    nextWeekButton.append(rightArrowIcon)
-    weekContainer.append(nextWeekButton)
-    nextWeekButton.addEventListener('click', nextWeek)
-}
+    var nextWeekButton = document.createElement('button');
+    var rightArrowIcon = document.createElement('i');
+    rightArrowIcon.setAttribute('class', 'fa-solid fa-chevron-right');
+    nextWeekButton.setAttribute('class', 'btn');
+    nextWeekButton.append(rightArrowIcon);
+    buttonsContainer.append(nextWeekButton);
+    nextWeekButton.addEventListener('click', nextWeek);
+};
 
 function previousWeek() {
-    var weekChange = weekContainer.getAttribute('data-week-change')
-    weekChange -= 1
+    var weekChange = timeContainer.getAttribute('data-week-change');
+    weekChange -= 1;
     // console.log("previous week clicked: " + weekChange);
-    weekContainer.setAttribute('data-week-change', weekChange)
-    generateWeek()
-    generateTimeSlots()
+    timeContainer.setAttribute('data-week-change', weekChange);
+    generateWeek();
+    generateTimeSlots();
     if (weekChange == 0) {
-        highlightCurrentDay()
-    }
+        highlightCurrentDay();
+    };
+};
+
+function todayWeek() {
+    var weekChange = timeContainer.getAttribute('data-week-change');
+    weekChange = 0;
+    // console.log("next week clicked: " + weekChange);
+    timeContainer.setAttribute('data-week-change', weekChange);
+    generateWeek();
+    generateTimeSlots();
+    if (weekChange == 0) {
+        highlightCurrentDay();
+    };
 };
 
 function nextWeek() {
-    var weekChange = weekContainer.getAttribute('data-week-change')
-    weekChange = parseInt(weekChange) + 1
+    var weekChange = timeContainer.getAttribute('data-week-change');
+    weekChange = parseInt(weekChange) + 1;
     // console.log("next week clicked: " + weekChange);
-    weekContainer.setAttribute('data-week-change', weekChange)
-    generateWeek()
-    generateTimeSlots()
+    timeContainer.setAttribute('data-week-change', weekChange);
+    generateWeek();
+    generateTimeSlots();
     if (weekChange == 0) {
-        highlightCurrentDay()
-    }
+        highlightCurrentDay();
+    };
 };
 
 // TODO: Dayjs functions - highlight current day column?
@@ -140,8 +159,11 @@ function highlightCurrentDay() {
 
 
 generateWeek();
-generateTimeSlots();
-highlightCurrentDay();
+createPreviousWeekButton()
+createTodayWeekButton()
+createNextWeekButton()
+// generateTimeSlots();
+// highlightCurrentDay();
 
 // console.log(dayjs('2018-06-27').week()); // 26
 // console.log(dayjs('2018-06-27').week(5)); // set week
