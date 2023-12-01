@@ -1,7 +1,6 @@
 dayjs.extend(window.dayjs_plugin_weekOfYear); //adds dayjs week of year api plugin
 
 // TODO: Add html element selectors here:
-// TODO: Timeslot functions - generate unique id / generate the timeblock with id
 var timeContainer = document.querySelector('#time-container');
 var buttonsContainer = document.querySelector('#buttons-container')
 var sunTimeSection = document.querySelector('#sun-hours');
@@ -22,8 +21,9 @@ var satHeader = document.querySelector('#sat-header');
 var timeSlotSections = [sunTimeSection, monTimeSection, tueTimeSection, wedTimeSection, thurTimeSection, friTimeSection, satTimeSection];
 var weekHeaders = [sunHeader, monHeader, tueHeader, wedHeader, thurHeader, friHeader, satHeader];
 
-
+// TODO: Time slot functions - generate unique id / generate the timeblock with id
 function generateTimeSlots() {
+    // *removes any existing timeslots first*//
     for (let j = 0; j < timeSlotSections.length; j++) {
         if (timeSlotSections[j].children.length > 0) {
             while (timeSlotSections[j].firstChild) {
@@ -32,24 +32,31 @@ function generateTimeSlots() {
         };
     }
 
-    var selectedDates = timeContainer.getAttribute('data-dateIDs').split(',')
+    var selectedDates = timeContainer.getAttribute('data-dateIDs').split(',') // gets selected week dates from stored data-dateIDs
+    
+    // *generates timeslots: outer loop goes through each column(Sun-Sat) and nested loop goes through each hour(12am-11pm)*//
     for (let j = 0; j < timeSlotSections.length; j++) {
-        for (let i = 0; i < 24; i++) {
-            // create time slot div
+        for (let i = 0; i < 25; i++) {
+            // create time slot list element
             var newTimeSlot = document.createElement('li');
-            timeSlotID = selectedDates[j] + i
-            newTimeSlot.textContent = timeSlotID;
-            newTimeSlot.setAttribute("id", timeSlotID)
-            newTimeSlot.setAttribute("class", "time-slot");
-            timeSlotSections[j].appendChild(newTimeSlot);
+            if (i == 0) {
+                timeSlotID = selectedDates[j]; // first list element is for holiday dates
+            } else {
+                timeSlotID = selectedDates[j] + (i - 1); // the remaining hours (0 - 24)
+            };
+            // newTimeSlot.textContent = timeSlotID;
+            newTimeSlot.setAttribute("id", timeSlotID); // unique ID for each time slot
+            newTimeSlot.setAttribute("class", "time-slot list-group-item"); // adds bootstrap classes and .time-slot class
+            timeSlotSections[j].appendChild(newTimeSlot); //append to column
         };
     };
 };
 
 // TODO: Dayjs functions - get current week and display correct formattedDates
 // TODO: Dayjs functions - get next week and display next week formattedDates
+// TODO: Dayjs functions - get today's week and display today's week formattedDates
 // TODO: Dayjs functions - get previous week formattedDates and display previous week formattedDates
-timeContainer.setAttribute('data-week-change', 0);
+timeContainer.setAttribute('data-week-change', 0);  // keeps track of week changes from today's week
 
 function generateWeek() {
     // ** variables to store important date data **//
@@ -141,14 +148,25 @@ function nextWeek() {
 // TODO: Dayjs functions - highlight current day column?
 function highlightCurrentDay() {
     currentDay = dayjs().format('DDMMYY')
-    for (let i = 0; i < 24; i++) {
-        var currentDayID = '#d' + currentDay + i
+    for (let i = 0; i < 25; i++) {
+        if (i ==0) {
+            var currentDayID = '#d' + currentDay 
+        } else {
+            var currentDayID = '#d' + currentDay + (i-1)
+        }
         // console.log(currentDayID);
         var currentTimeSlot = document.querySelector(currentDayID)
-        currentTimeSlot.setAttribute('class', 'bg-secondary')
+        currentTimeSlot.setAttribute('class', 'time-slot list-group-item bg-secondary')
     }
 };
 
+//* All of the called functions on start up *//
+generateWeek();
+generateTimeSlots()
+highlightCurrentDay()
+createPreviousWeekButton();
+createTodayWeekButton();
+createNextWeekButton();
 
 // TODO: Holiday API functions - fetch and match formattedDate to holiday
 
@@ -158,10 +176,6 @@ function highlightCurrentDay() {
 
 
 
-generateWeek();
-createPreviousWeekButton()
-createTodayWeekButton()
-createNextWeekButton()
 // generateTimeSlots();
 // highlightCurrentDay();
 
