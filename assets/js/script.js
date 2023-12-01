@@ -15,26 +15,39 @@
 // TODO: Timeslot functions - generate unique id / generate the timeblock with id
 
 // TODO: Event Creation functions - create pop up with user input fields
-function showEventPopup() {
-    const popup = document.createElement('div');
+function showEventPopup(event) {
+    var popup = document.createElement('div');
     popup.classList.add('event-popup');
+
+    var mouseX = event.clientX;
+    var mouseY = event.clientY;
+    popup.style.position = 'absolute';
+    popup.style.top = `${mouseY}px`;
+    popup.style.left = `${mouseX}px`;
+
     popup.innerHTML = `
       <h2>Create Event</h2>
       <label for="eventName">Event Name:</label>
       <input type="text" id="eventName" required>
       <label for="eventTime">Event Time:</label>
-      <input type="time" id="eventTime" required>
+      <input type="time" step="3600000" id="eventTime" required>
       <label for="eventDate">Event Date:</label>
       <input type="date" id="eventDate" required>
+      <label for="eventDescription">Event Description:</label>
+      <input type="text" id="eventDescription" required>
       <button onclick="saveEvent()">Save Event</button>
       <button onclick="closePopup()">Cancel</button>
     `;
     document.body.appendChild(popup);
   }
 
+document.getElementById('btntest').addEventListener('click', function(event) {
+    showEventPopup(event);
+});
+
 // TODO: Event Creation functions - close popup
 function closePopup() {
-    const popup = document.querySelector('.event-popup');
+    var popup = document.querySelector('.event-popup');
     if (popup) {
         document.body.removeChild(popup);
     }
@@ -42,19 +55,27 @@ function closePopup() {
 
 // TODO: Event Creation functions - save event details to local storage with specific timeslot and date
 function saveEvent() {
-    const eventName = document.getElementById('eventName').ariaValueMax;
-    const eventDate = document.getElementById('eventDate').ariaValueMax;
-    const eventTime = document.getElementById('eventTime').ariaValueMax;
-
-    const eventDetails = {
+    var eventName = document.getElementById('eventName').value;
+    var eventDate = document.getElementById('eventDate').value;
+    var eventTime = document.getElementById('eventTime').value;
+    var eventDescription = document.getElementById('eventDescription').value;
+    
+    var eventDetails = {
         name: eventName,
         date: eventDate,
-        time:eventTime
+        time: eventTime,
+        description: eventDescription
     };
+    
+    var eventHour = parseInt(eventTime.substring(0, 2), 10);
+    var eventDay = parseInt(eventDate.substring(8, 10), 10);
+    var eventMonth = parseInt(eventDate.substring(5, 7), 10);
+    var eventYear = parseInt(eventDate.substring(0, 4), 10);
 
-    const eventDetailsJSON = JSON.stringify(eventDetails)
-
-    localStorage.setItem('eventDetails', eventDetailsJSON)
+    console.log(eventHour, eventDay, eventMonth, eventYear);
+    var eventDetailsJSON = JSON.stringify(eventDetails);
+    localStorage.setItem('eventDetails', eventDetailsJSON);
+    return { eventHour, eventDay, eventMonth, eventYear };
 };
 
 // TODO: Event Creation functions - record and display user input event details on timeslot
