@@ -16,12 +16,18 @@
 
 // TODO: Event Creation functions - create pop up with user input fields
 function showEventPopup(event) {
+    
+    var existingPopup = document.querySelector('.event-popup');
+    if (existingPopup) {
+        document.body.removeChild(existingPopup);
+    }
+
     var popup = document.createElement('div');
     popup.classList.add('event-popup');
 
     var mouseX = event.clientX;
     var mouseY = event.clientY;
-    popup.style.position = 'absolute';
+    popup.style.position = 'fixed';
     popup.style.top = `${mouseY}px`;
     popup.style.left = `${mouseX}px`;
 
@@ -41,9 +47,13 @@ function showEventPopup(event) {
     document.body.appendChild(popup);
   }
 
-document.getElementById('btntest').addEventListener('click', function(event) {
-    showEventPopup(event);
-});
+  var listItems = document.getElementsByClassName('time-slot');
+
+  for (var i = 0; i < listItems.length; i++) {
+      listItems[i].addEventListener('click', function(event) {
+          showEventPopup(event);
+      });
+  }
 
 // TODO: Event Creation functions - close popup
 function closePopup() {
@@ -70,7 +80,7 @@ function saveEvent() {
     var eventHour = parseInt(eventTime.substring(0, 2), 10);
     var eventDay = parseInt(eventDate.substring(8, 10), 10);
     var eventMonth = parseInt(eventDate.substring(5, 7), 10);
-    var eventYear = parseInt(eventDate.substring(0, 4), 10);
+    var eventYear = parseInt(eventDate.substring(2, 4), 10);
 
     console.log(eventHour, eventDay, eventMonth, eventYear);
     var eventDetailsJSON = JSON.stringify(eventDetails);
