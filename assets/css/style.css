@@ -19,7 +19,15 @@
 /* time slots */
 
 .slot {
-    font-size: 0.6em;
+    display: flex;
+}
+
+.slot-event{
+    font-size: 0.5em;
+}
+
+.slot-time {
+    font-size: 0.7em;
 }
 
 .daycard .list-group-item {
