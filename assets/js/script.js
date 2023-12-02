@@ -119,6 +119,7 @@ function previousWeek() {
     if (weekChange == 0) {
         highlightCurrentDay();
     };
+    closePopup();
 };
 
 function todayWeek() {
@@ -143,6 +144,7 @@ function nextWeek() {
     if (weekChange == 0) {
         highlightCurrentDay();
     };
+    closePopup();
 };
 
 // TODO: Dayjs functions - highlight current day column?
@@ -191,10 +193,94 @@ createNextWeekButton();
 
 
 // TODO: Event Creation functions - create pop up with user input fields
+function showEventPopup(event) {
+    
+    var existingPopup = document.querySelector('.event-popup');
+    if (existingPopup) {
+        document.body.removeChild(existingPopup);
+    }
+
+    var popup = document.createElement('div');
+    popup.classList.add('event-popup');
+
+    var mouseX = event.clientX;
+    var mouseY = event.clientY;
+
+    var popupWidth = 300; // Adjust the popup width as needed
+    var popupHeight = 300; // Adjust the popup height as needed
+
+    // Adjust popup position to stay within window boundaries
+    var maxX = window.innerWidth - popupWidth;
+    var maxY = window.innerHeight - popupHeight;
+
+    var adjustedX = Math.min(mouseX, maxX);
+    var adjustedY = Math.min(mouseY, maxY);
+
+    popup.style.position = 'fixed';
+    popup.style.top = `${adjustedY}px`;
+    popup.style.left = `${adjustedX}px`;
+
+    popup.innerHTML = `
+      <h2>Create Event</h2>
+      <label for="eventName">Event Name:</label>
+      <input type="text" id="eventName" required><br>
+      <label for="eventTime">Event Time:</label>
+      <input type="time" step="3600000" id="eventTime" required><br>
+      <label for="eventDate">Event Date:</label>
+      <input type="date" id="eventDate" required><br>
+      <label for="eventDescription">Event Description:</label>
+      <input type="text" id="eventDescription" required><br>
+      <button onclick="saveEvent()">Save Event</button>
+      <button onclick="closePopup()">Cancel</button>
+    `;
+    document.body.appendChild(popup);
+  }
+
+  timeContainer.addEventListener('click', function(event) {
+    var target = event.target;
+    if (target.classList.contains('time-slot')) {
+        showEventPopup(event);
+    }
+});
+
+// TODO: Event Creation functions - close popup
+function closePopup() {
+    var popup = document.querySelector('.event-popup');
+    if (popup) {
+        document.body.removeChild(popup);
+    }
+}
+
+// TODO: Event Creation functions - save event details to local storage with specific timeslot and date
+function saveEvent() {
+    var eventName = document.getElementById('eventName').value;
+    var eventDate = document.getElementById('eventDate').value;
+    var eventTime = document.getElementById('eventTime').value;
+    var eventDescription = document.getElementById('eventDescription').value;
+    
+    var eventDetails = {
+        name: eventName,
+        date: eventDate,
+        time: eventTime,
+        description: eventDescription
+    };
+    
+    var eventHour = parseInt(eventTime.substring(0, 2), 10);
+    var eventDay = parseInt(eventDate.substring(8, 10), 10);
+    var eventMonth = parseInt(eventDate.substring(5, 7), 10);
+    var eventYear = parseInt(eventDate.substring(2, 4), 10);
+
+
+    console.log(eventHour, eventDay, eventMonth, eventYear);
+    var eventDetailsJSON = JSON.stringify(eventDetails);
+    localStorage.setItem('eventDetails', eventDetailsJSON);
+    return { eventHour, eventDay, eventMonth, eventYear };
+};
 
 // TODO: Event Creation functions - record and display user input event details on timeslot
-
-// TODO: Event Creation functions - save event details to local storage with specific timeslot and formattedDate
+function updateScheduleDisplay() {
+    
+};
 
 // TODO: Event block functions - button to modify event function
 
