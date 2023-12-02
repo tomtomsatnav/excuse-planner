@@ -209,7 +209,6 @@ function showEventPopup(event) {
     var popupWidth = 300; // Adjust the popup width as needed
     var popupHeight = 300; // Adjust the popup height as needed
 
-    // Adjust popup position to stay within window boundaries
     var maxX = window.innerWidth - popupWidth;
     var maxY = window.innerHeight - popupHeight;
 
