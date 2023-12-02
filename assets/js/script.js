@@ -119,6 +119,7 @@ function previousWeek() {
     if (weekChange == 0) {
         highlightCurrentDay();
     };
+    closePopup();
 };
 
 function todayWeek() {
@@ -143,6 +144,7 @@ function nextWeek() {
     if (weekChange == 0) {
         highlightCurrentDay();
     };
+    closePopup();
 };
 
 // TODO: Dayjs functions - highlight current day column?
@@ -203,33 +205,43 @@ function showEventPopup(event) {
 
     var mouseX = event.clientX;
     var mouseY = event.clientY;
+
+    var popupWidth = 300; // Adjust the popup width as needed
+    var popupHeight = 300; // Adjust the popup height as needed
+
+    // Adjust popup position to stay within window boundaries
+    var maxX = window.innerWidth - popupWidth;
+    var maxY = window.innerHeight - popupHeight;
+
+    var adjustedX = Math.min(mouseX, maxX);
+    var adjustedY = Math.min(mouseY, maxY);
+
     popup.style.position = 'fixed';
-    popup.style.top = `${mouseY}px`;
-    popup.style.left = `${mouseX}px`;
+    popup.style.top = `${adjustedY}px`;
+    popup.style.left = `${adjustedX}px`;
 
     popup.innerHTML = `
       <h2>Create Event</h2>
       <label for="eventName">Event Name:</label>
-      <input type="text" id="eventName" required>
+      <input type="text" id="eventName" required><br>
       <label for="eventTime">Event Time:</label>
-      <input type="time" step="3600000" id="eventTime" required>
+      <input type="time" step="3600000" id="eventTime" required><br>
       <label for="eventDate">Event Date:</label>
-      <input type="date" id="eventDate" required>
+      <input type="date" id="eventDate" required><br>
       <label for="eventDescription">Event Description:</label>
-      <input type="text" id="eventDescription" required>
+      <input type="text" id="eventDescription" required><br>
       <button onclick="saveEvent()">Save Event</button>
       <button onclick="closePopup()">Cancel</button>
     `;
     document.body.appendChild(popup);
   }
 
-  var listItems = document.getElementsByClassName('time-slot');
-
-  for (var i = 0; i < listItems.length; i++) {
-      listItems[i].addEventListener('click', function(event) {
-          showEventPopup(event);
-      });
-  }
+  timeContainer.addEventListener('click', function(event) {
+    var target = event.target;
+    if (target.classList.contains('time-slot')) {
+        showEventPopup(event);
+    }
+});
 
 // TODO: Event Creation functions - close popup
 function closePopup() {
@@ -268,7 +280,8 @@ function saveEvent() {
 // TODO: Event Creation functions - record and display user input event details on timeslot
 function updateScheduleDisplay() {
     
-}
+};
+
 // TODO: Event block functions - button to modify event function
 
 // TODO: Event block functions - generate excuse function
