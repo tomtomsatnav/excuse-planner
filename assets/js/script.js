@@ -20,7 +20,7 @@ var satHeader = document.querySelector('#sat-header');
 
 var timeSlotSections = [sunTimeSection, monTimeSection, tueTimeSection, wedTimeSection, thurTimeSection, friTimeSection, satTimeSection];
 var weekHeaders = [sunHeader, monHeader, tueHeader, wedHeader, thurHeader, friHeader, satHeader];
-
+var hoursArray = ['12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm', '10pm', '11pm']
 // TODO: Time slot functions - generate unique id / generate the timeblock with id
 function generateTimeSlots() {
     // *removes any existing timeslots first*//
@@ -41,12 +41,23 @@ function generateTimeSlots() {
             var newTimeSlot = document.createElement('li');
             if (i == 0) {
                 timeSlotID = selectedDates[j]; // first list element is for holiday dates
+                newTimeSlot.setAttribute("id", timeSlotID); // unique ID for each time slot
+                newTimeSlot.setAttribute("class", "list-group-item holiday"); // adds bootstrap classes and holiday class
             } else {
                 timeSlotID = selectedDates[j] + (i - 1); // the remaining hours (0 - 24)
+                newTimeSlot.setAttribute("id", timeSlotID); // unique ID for each time slot
+                newTimeSlot.setAttribute("class", "time-slot list-group-item"); // adds bootstrap classes and .time-slot class
+                
+                // create hour div for mobile responsiveness and event div
+                var newHourDiv = document.createElement('div')
+                var newEventDiv = document.createElement('div')
+                newHourDiv.setAttribute('class', 'slot-time d-block d-lg-none')
+                newEventDiv.setAttribute('class', 'slot-event')
+                newHourDiv.textContent = hoursArray[i-1]
+                newTimeSlot.append(newHourDiv, newEventDiv)
+                // newEventDiv.textContent = timeSlotID;
             };
-            // newTimeSlot.textContent = timeSlotID;
-            newTimeSlot.setAttribute("id", timeSlotID); // unique ID for each time slot
-            newTimeSlot.setAttribute("class", "time-slot list-group-item"); // adds bootstrap classes and .time-slot class
+            
             timeSlotSections[j].appendChild(newTimeSlot); //append to column
         };
     };
