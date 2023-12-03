@@ -20,7 +20,7 @@ var satHeader = document.querySelector('#sat-header');
 
 var timeSlotSections = [sunTimeSection, monTimeSection, tueTimeSection, wedTimeSection, thurTimeSection, friTimeSection, satTimeSection];
 var weekHeaders = [sunHeader, monHeader, tueHeader, wedHeader, thurHeader, friHeader, satHeader];
-
+var hoursArray = ['12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm', '10pm', '11pm']
 // TODO: Time slot functions - generate unique id / generate the timeblock with id
 function generateTimeSlots() {
     // *removes any existing timeslots first*//
@@ -33,7 +33,7 @@ function generateTimeSlots() {
     }
 
     var selectedDates = timeContainer.getAttribute('data-dateIDs').split(',') // gets selected week dates from stored data-dateIDs
-    
+
     // *generates timeslots: outer loop goes through each column(Sun-Sat) and nested loop goes through each hour(12am-11pm)*//
     for (let j = 0; j < timeSlotSections.length; j++) {
         for (let i = 0; i < 25; i++) {
@@ -41,12 +41,23 @@ function generateTimeSlots() {
             var newTimeSlot = document.createElement('li');
             if (i == 0) {
                 timeSlotID = selectedDates[j]; // first list element is for holiday dates
+                newTimeSlot.setAttribute("id", timeSlotID); // unique ID for each time slot
+                newTimeSlot.setAttribute("class", "list-group-item holiday"); // adds bootstrap classes and holiday class
             } else {
                 timeSlotID = selectedDates[j] + (i - 1); // the remaining hours (0 - 24)
+                newTimeSlot.setAttribute("id", timeSlotID); // unique ID for each time slot
+                newTimeSlot.setAttribute("class", "time-slot list-group-item"); // adds bootstrap classes and .time-slot class
+
+                // create hour div for mobile responsiveness and event div
+                var newHourDiv = document.createElement('div')
+                var newEventDiv = document.createElement('div')
+                newHourDiv.setAttribute('class', 'slot-hour d-block d-lg-none')
+                newEventDiv.setAttribute('class', 'slot-event')
+                newHourDiv.textContent = hoursArray[i - 1]
+                newTimeSlot.append(newHourDiv, newEventDiv)
+                // newEventDiv.textContent = timeSlotID;
             };
-            // newTimeSlot.textContent = timeSlotID;
-            newTimeSlot.setAttribute("id", timeSlotID); // unique ID for each time slot
-            newTimeSlot.setAttribute("class", "time-slot list-group-item"); // adds bootstrap classes and .time-slot class
+
             timeSlotSections[j].appendChild(newTimeSlot); //append to column
         };
     };
@@ -64,6 +75,7 @@ function generateWeek() {
     var thisWeek = dayjs().week();
     var selectedWeek = thisWeek + parseInt(weekChange);
     var selectedDates = [];
+    var datesForHolidayAPI = [];
     // console.log("selected week is:" + selectedWeek);
     // console.log("change week tracker is:" +weekChange);
 
@@ -71,14 +83,17 @@ function generateWeek() {
     for (let i = 0; i < 7; i++) {
         formattedDate = dayjs().week(selectedWeek).startOf('week').add(i, 'day').format('ddd D.M.YY');
         dateID = 'd' + dayjs().week(selectedWeek).startOf('week').add(i, 'day').format('DDMMYY');
+        dateHolidayFormat = dayjs().week(selectedWeek).startOf('week').add(i, 'day').format('YYYY-MM-DD');
         // console.log(formattedDate);
         // console.log(dateID);
         selectedDates.push(dateID);
+        datesForHolidayAPI.push(dateHolidayFormat)
         weekHeaders[i].textContent = formattedDate;
     };
 
     // console.log(selectedDates.toString());
     timeContainer.setAttribute('data-dateIDs', selectedDates.toString());
+    timeContainer.setAttribute('data-datesHoliday', datesForHolidayAPI.toString());
 };
 
 function createPreviousWeekButton() {
@@ -116,6 +131,7 @@ function previousWeek() {
     timeContainer.setAttribute('data-week-change', weekChange);
     generateWeek();
     generateTimeSlots();
+    fetchHolidays();
     if (weekChange == 0) {
         highlightCurrentDay();
     };
@@ -129,9 +145,11 @@ function todayWeek() {
     timeContainer.setAttribute('data-week-change', weekChange);
     generateWeek();
     generateTimeSlots();
+    fetchHolidays();
     if (weekChange == 0) {
         highlightCurrentDay();
     };
+    closePopup();
 };
 
 function nextWeek() {
@@ -141,6 +159,7 @@ function nextWeek() {
     timeContainer.setAttribute('data-week-change', weekChange);
     generateWeek();
     generateTimeSlots();
+    fetchHolidays();
     if (weekChange == 0) {
         highlightCurrentDay();
     };
@@ -151,10 +170,10 @@ function nextWeek() {
 function highlightCurrentDay() {
     currentDay = dayjs().format('DDMMYY')
     for (let i = 0; i < 25; i++) {
-        if (i ==0) {
-            var currentDayID = '#d' + currentDay 
+        if (i == 0) {
+            var currentDayID = '#d' + currentDay
         } else {
-            var currentDayID = '#d' + currentDay + (i-1)
+            var currentDayID = '#d' + currentDay + (i - 1)
         }
         // console.log(currentDayID);
         var currentTimeSlot = document.querySelector(currentDayID)
@@ -169,12 +188,35 @@ highlightCurrentDay()
 createPreviousWeekButton();
 createTodayWeekButton();
 createNextWeekButton();
+fetchHolidays();
 
 // TODO: Holiday API functions - fetch and match formattedDate to holiday
-
-
-
 // TODO: Holiday API functions - display holiday to calendar 
+
+function fetchHolidays() {
+    var holidaysURL = "https://www.gov.uk/bank-holidays.json";
+    fetch(holidaysURL)
+    .then(function (response) {
+        return response.json();
+    }).then(function (data) {
+        var datesForHolidayAPI = timeContainer.getAttribute('data-datesHoliday').split(',') // gets selected week dates from stored data-datesHoliday
+        var selectedDates = timeContainer.getAttribute('data-dateIDs').split(',') // gets selected week dates from stored data-dateIDs
+        // console.log(data);
+        // console.log(data["england-and-wales"]);
+        for (let j = 0; j < datesForHolidayAPI.length; j++) {  // loops through a 7-day array to check for any holidays
+            for (let i = 0; i < data["england-and-wales"].events.length; i++) {  // loops through the holidayAPI data to check for a date match
+                if (datesForHolidayAPI[j] == data["england-and-wales"].events[i].date) {  // Check for a date match
+                    var holidayID = '#' + selectedDates[j];  // get the correct unique date ID
+                    var holidayDiv = document.querySelector(holidayID)  // selects correct holidayDiv
+                    holidayDiv.textContent = data["england-and-wales"].events[i].title  // updates text to show the holiday name
+                };
+            };
+        };
+    });
+}
+
+
+
 
 
 
@@ -194,7 +236,7 @@ createNextWeekButton();
 
 // TODO: Event Creation functions - create pop up with user input fields
 function showEventPopup(event) {
-    
+
     var existingPopup = document.querySelector('.event-popup');
     if (existingPopup) {
         document.body.removeChild(existingPopup);
@@ -234,9 +276,9 @@ function showEventPopup(event) {
       <button onclick="closePopup()">Cancel</button>
     `;
     document.body.appendChild(popup);
-  }
+}
 
-  timeContainer.addEventListener('click', function(event) {
+timeContainer.addEventListener('click', function (event) {
     var target = event.target;
     if (target.classList.contains('time-slot')) {
         showEventPopup(event);
@@ -257,14 +299,14 @@ function saveEvent() {
     var eventDate = document.getElementById('eventDate').value;
     var eventTime = document.getElementById('eventTime').value;
     var eventDescription = document.getElementById('eventDescription').value;
-    
+
     var eventDetails = {
         name: eventName,
         date: eventDate,
         time: eventTime,
         description: eventDescription
     };
-    
+
     var eventHour = parseInt(eventTime.substring(0, 2), 10);
     var eventDay = parseInt(eventDate.substring(8, 10), 10);
     var eventMonth = parseInt(eventDate.substring(5, 7), 10);
@@ -279,7 +321,7 @@ function saveEvent() {
 
 // TODO: Event Creation functions - record and display user input event details on timeslot
 function updateScheduleDisplay() {
-    
+
 };
 
 // TODO: Event block functions - button to modify event function
