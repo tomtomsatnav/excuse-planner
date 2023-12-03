@@ -51,7 +51,7 @@ function generateTimeSlots() {
                 // create hour div for mobile responsiveness and event div
                 var newHourDiv = document.createElement('div')
                 var newEventDiv = document.createElement('div')
-                newHourDiv.setAttribute('class', 'slot-time d-block d-lg-none')
+                newHourDiv.setAttribute('class', 'slot-hour d-block d-lg-none')
                 newEventDiv.setAttribute('class', 'slot-event')
                 newHourDiv.textContent = hoursArray[i-1]
                 newTimeSlot.append(newHourDiv, newEventDiv)
