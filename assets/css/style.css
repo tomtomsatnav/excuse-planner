@@ -15,3 +15,21 @@
 .hourCol .list-group-item {
     text-align: center;
 }
+
+/* time slots */
+
+.slot {
+    display: flex;
+}
+
+.slot-event{
+    font-size: 0.5em;
+}
+
+.slot-time {
+    font-size: 0.7em;
+}
+
+.daycard .list-group-item {
+    padding: 0.2em;
+}
