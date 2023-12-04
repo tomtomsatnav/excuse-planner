@@ -181,6 +181,31 @@ function highlightCurrentDay() {
     }
 };
 
+// TODO: Holiday API functions - fetch and match formattedDate to holiday
+// TODO: Holiday API functions - display holiday to calendar 
+
+function fetchHolidays() {
+    var holidaysURL = "https://www.gov.uk/bank-holidays.json";
+    fetch(holidaysURL)
+        .then(function (response) {
+            return response.json();
+        }).then(function (data) {
+            var datesForHolidayAPI = timeContainer.getAttribute('data-datesHoliday').split(',') // gets selected week dates from stored data-datesHoliday
+            var selectedDates = timeContainer.getAttribute('data-dateIDs').split(',') // gets selected week dates from stored data-dateIDs
+            // console.log(data);
+            // console.log(data["england-and-wales"]);
+            for (let j = 0; j < datesForHolidayAPI.length; j++) {  // loops through a 7-day array to check for any holidays
+                for (let i = 0; i < data["england-and-wales"].events.length; i++) {  // loops through the holidayAPI data to check for a date match
+                    if (datesForHolidayAPI[j] == data["england-and-wales"].events[i].date) {  // Check for a date match
+                        var holidayID = '#' + selectedDates[j];  // get the correct unique date ID
+                        var holidayDiv = document.querySelector(holidayID)  // selects correct holidayDiv
+                        holidayDiv.textContent = data["england-and-wales"].events[i].title  // updates text to show the holiday name
+                    };
+                };
+            };
+        });
+}
+
 //* All of the called functions on start up *//
 generateWeek();
 generateTimeSlots()
@@ -190,53 +215,10 @@ createTodayWeekButton();
 createNextWeekButton();
 fetchHolidays();
 
-// TODO: Holiday API functions - fetch and match formattedDate to holiday
-// TODO: Holiday API functions - display holiday to calendar 
-
-function fetchHolidays() {
-    var holidaysURL = "https://www.gov.uk/bank-holidays.json";
-    fetch(holidaysURL)
-    .then(function (response) {
-        return response.json();
-    }).then(function (data) {
-        var datesForHolidayAPI = timeContainer.getAttribute('data-datesHoliday').split(',') // gets selected week dates from stored data-datesHoliday
-        var selectedDates = timeContainer.getAttribute('data-dateIDs').split(',') // gets selected week dates from stored data-dateIDs
-        // console.log(data);
-        // console.log(data["england-and-wales"]);
-        for (let j = 0; j < datesForHolidayAPI.length; j++) {  // loops through a 7-day array to check for any holidays
-            for (let i = 0; i < data["england-and-wales"].events.length; i++) {  // loops through the holidayAPI data to check for a date match
-                if (datesForHolidayAPI[j] == data["england-and-wales"].events[i].date) {  // Check for a date match
-                    var holidayID = '#' + selectedDates[j];  // get the correct unique date ID
-                    var holidayDiv = document.querySelector(holidayID)  // selects correct holidayDiv
-                    holidayDiv.textContent = data["england-and-wales"].events[i].title  // updates text to show the holiday name
-                };
-            };
-        };
-    });
-}
-
-
-
-
-
-
-// generateTimeSlots();
-// highlightCurrentDay();
-
-// console.log(dayjs('2018-06-27').week()); // 26
-// console.log(dayjs('2018-06-27').week(5)); // set week
-// console.log(dayjs().week());
-// console.log(dayjs().week(49).startOf('week'));
-// console.log(dayjs().startOf('week').format('ddd D.M'));
-// console.log(dayjs().startOf('week').add(1, 'day').format('DD/MM/YYYY'));
-
-
-
-
 
 // TODO: Event Creation functions - create pop up with user input fields
 function showEventPopup(event) {
-
+    // console.log(event.target.getAttribute('id'));
     var existingPopup = document.querySelector('.event-popup');
     if (existingPopup) {
         document.body.removeChild(existingPopup);
@@ -249,7 +231,7 @@ function showEventPopup(event) {
     var mouseY = event.clientY;
 
     var popupWidth = 300; // Adjust the popup width as needed
-    var popupHeight = 300; // Adjust the popup height as needed
+    var popupHeight = 600; // Adjust the popup height as needed
 
     // Adjust popup position to stay within window boundaries
     var maxX = window.innerWidth - popupWidth;
@@ -263,17 +245,29 @@ function showEventPopup(event) {
     popup.style.left = `${adjustedX}px`;
 
     popup.innerHTML = `
-      <h2>Create Event</h2>
-      <label for="eventName">Event Name:</label>
-      <input type="text" id="eventName" required><br>
-      <label for="eventTime">Event Time:</label>
-      <input type="time" step="3600000" id="eventTime" required><br>
-      <label for="eventDate">Event Date:</label>
-      <input type="date" id="eventDate" required><br>
-      <label for="eventDescription">Event Description:</label>
-      <input type="text" id="eventDescription" required><br>
-      <button onclick="saveEvent()">Save Event</button>
-      <button onclick="closePopup()">Cancel</button>
+        <h2>Create Event</h2>
+        <label for="eventName">Event Name:</label>
+        <input type="text" id="eventName" required><br>
+        <label for="eventTime">Event Time:</label>
+        <input type="time" step="3600000" id="eventTime" required><br>
+        <label for="eventDate">Event Date:</label>
+        <input type="date" id="eventDate" required><br>
+        <label for="eventDescription">Event Description:</label>
+        <input type="text" id="eventDescription" required><br>
+        <label for="eventCategory">Category:</label>
+        <select id="eventCategory" name="category">
+        <option value="family">Family</option>
+        <option value="office">Office</option>
+        <option value="children">Children</option>
+        <option value="college">College</option>
+        <option value="party">Party</option>
+        <option value="funny">Funny</option>
+        <option value="unbelievable">Unbelievable</option>
+        <option value="developers">Developer</option>
+        <option value="gaming">Gaming</option>
+        </select>
+        <button onclick="saveEvent(event)">Save Event</button>
+        <button onclick="closePopup()">Cancel</button>
     `;
     document.body.appendChild(popup);
 }
@@ -294,21 +288,28 @@ function closePopup() {
 }
 
 // TODO: Event Creation functions - save event details to local storage with specific timeslot and date
-function saveEvent() {
+function saveEvent(event) {
+    console.log(event.target.parentElement);
     var eventName = document.getElementById('eventName').value;
     var eventDate = document.getElementById('eventDate').value;
     var eventTime = document.getElementById('eventTime').value;
     var eventDescription = document.getElementById('eventDescription').value;
+    var eventCategory = document.getElementById('eventCategory').value;
 
     var eventDetails = {
         name: eventName,
         date: eventDate,
         time: eventTime,
-        description: eventDescription
+        description: eventDescription,
+        category: eventCategory
     };
 
+    if (parseInt(eventDate.substring(8, 10), 10) < 10) {
+        var eventDay = "0" + parseInt(eventDate.substring(8, 10), 10);
+    } else {
+        var eventDay = parseInt(eventDate.substring(8, 10), 10);
+    }
     var eventHour = parseInt(eventTime.substring(0, 2), 10);
-    var eventDay = parseInt(eventDate.substring(8, 10), 10);
     var eventMonth = parseInt(eventDate.substring(5, 7), 10);
     var eventYear = parseInt(eventDate.substring(2, 4), 10);
 
@@ -316,17 +317,58 @@ function saveEvent() {
     console.log(eventHour, eventDay, eventMonth, eventYear);
     var eventDetailsJSON = JSON.stringify(eventDetails);
     localStorage.setItem('eventDetails', eventDetailsJSON);
+    updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear )
+    closePopup()
     return { eventHour, eventDay, eventMonth, eventYear };
 };
 
 // TODO: Event Creation functions - record and display user input event details on timeslot
-function updateScheduleDisplay() {
+function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
+    var eventSlotID = "#d" + eventDay+eventMonth+eventYear+eventHour
+    var eventSlot = document.querySelector(eventSlotID)
+    eventSlot.removeChild(eventSlot.lastChild)
 
+    eventDetails = JSON.parse(localStorage.getItem('eventDetails'))
+    console.log(eventDetails);
+
+    var newEventDiv = document.createElement('div')
+    newEventDiv.setAttribute('class', 'slot-event')
+    newEventDiv.innerHTML = `
+        <h5 class="card-title">${eventDetails.name}</h5>
+    `
+    createExcuseButton(newEventDiv)
+    eventSlot.append(newEventDiv)
 };
 
 // TODO: Event block functions - button to modify event function
 
 // TODO: Event block functions - generate excuse function
+function createExcuseButton(newEventDiv) {
+    var generateExcuseButton = document.createElement('button')
+    generateExcuseButton.setAttribute('type', 'button')
+    generateExcuseButton.setAttribute('class', 'btn btn-outline-primary')
+    generateExcuseButton.textContent = "Generate excuse!"
+    generateExcuseButton.addEventListener('click', generateExcuse)
+    newEventDiv.append(generateExcuseButton)
+}
+
+function generateExcuse(event) {
+    var eventDetails = JSON.parse(localStorage.getItem('eventDetails'))
+    console.log(eventDetails);
+    var excuserURL = "https://excuser-three.vercel.app/v1/excuse/" + eventDetails.category;
+    fetch(excuserURL)
+        .then(function (response) {
+            return response.json();
+        }).then(function (data) {
+            console.log(data[0].excuse);
+            selectedTimeSlotDiv = event.target.parentElement;
+            selectedTimeSlotDiv.removeChild(selectedTimeSlotDiv.querySelector('button'))
+            newExcuse = document.createElement('p')
+            newExcuse.setAttribute('class', 'card-body text-primary')
+            newExcuse.textContent = data[0].excuse
+            selectedTimeSlotDiv.append(newExcuse)
+        });
+}
 
 // TODO: Event block functions - regenerate excuse function
 
