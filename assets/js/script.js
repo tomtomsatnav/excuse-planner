@@ -249,6 +249,9 @@ function showEventPopup(event) {
     console.log(event.target);
     var eventID = event.target.getAttribute('id')
     console.log(eventID);
+
+    popup.setAttribute('data-storageID', eventID)
+
     var informationFromID = eventID.split('-')
     console.log(informationFromID);
     selectedEventDate = `${informationFromID[3]}-${informationFromID[2]}-${informationFromID[1]}`
@@ -309,6 +312,7 @@ function saveEvent(event) {
     var eventTime = document.getElementById('eventTime').value;
     var eventDescription = document.getElementById('eventDescription').value;
     var eventCategory = document.getElementById('eventCategory').value;
+    var eventID = event.target.parentElement.getAttribute('data-storageID')
 
     var eventDetails = {
         name: eventName,
@@ -330,7 +334,7 @@ function saveEvent(event) {
 
     console.log(eventHour, eventDay, eventMonth, eventYear);
     var eventDetailsJSON = JSON.stringify(eventDetails);
-    localStorage.setItem('eventDetails', eventDetailsJSON);
+    localStorage.setItem(eventID, eventDetailsJSON);
     updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear )
     closePopup()
     return { eventHour, eventDay, eventMonth, eventYear };
@@ -338,11 +342,13 @@ function saveEvent(event) {
 
 // TODO: Event Creation functions - record and display user input event details on timeslot
 function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
-    var eventSlotID = "#d" + "-" + eventDay+ "-" + eventMonth+ "-20" + eventYear + "-" + eventHour
-    var eventSlot = document.querySelector(eventSlotID)
+    var eventID = "d" + "-" + eventDay+ "-" + eventMonth+ "-20" + eventYear + "-" + eventHour
+    var eventSlot = document.querySelector("#" + eventID)
     eventSlot.removeChild(eventSlot.lastChild)
 
-    eventDetails = JSON.parse(localStorage.getItem('eventDetails'))
+    console.log(eventID);
+
+    eventDetails = JSON.parse(localStorage.getItem(eventID))
     console.log(eventDetails);
 
     var newEventDiv = document.createElement('div')
