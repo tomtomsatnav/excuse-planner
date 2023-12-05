@@ -62,6 +62,8 @@ function generateTimeSlots() {
         };
     };
 };
+// TODO: retrieve saved local storage events and display when generating timeslots
+
 
 // TODO: Dayjs functions - get current week and display correct formattedDates
 // TODO: Dayjs functions - get next week and display next week formattedDates
@@ -82,7 +84,7 @@ function generateWeek() {
     // ** creates selected week dates, stores it into an array and displays formatted date **//
     for (let i = 0; i < 7; i++) {
         formattedDate = dayjs().week(selectedWeek).startOf('week').add(i, 'day').format('ddd D.M.YY');
-        dateID = 'd' + dayjs().week(selectedWeek).startOf('week').add(i, 'day').format('DDMMYY');
+        dateID = 'd' + dayjs().week(selectedWeek).startOf('week').add(i, 'day').format('-DD-MM-YYYY-');
         dateHolidayFormat = dayjs().week(selectedWeek).startOf('week').add(i, 'day').format('YYYY-MM-DD');
         // console.log(formattedDate);
         // console.log(dateID);
@@ -168,7 +170,7 @@ function nextWeek() {
 
 // TODO: Dayjs functions - highlight current day column?
 function highlightCurrentDay() {
-    currentDay = dayjs().format('DDMMYY')
+    currentDay = dayjs().format('-DD-MM-YYYY-')
     for (let i = 0; i < 25; i++) {
         if (i == 0) {
             var currentDayID = '#d' + currentDay
@@ -225,7 +227,7 @@ function showEventPopup(event) {
     }
 
     var popup = document.createElement('div');
-    popup.classList.add('event-popup');
+    popup.setAttribute('class', 'event-popup bg-white border-primary mb-3 p-3');
 
     var mouseX = event.clientX;
     var mouseY = event.clientY;
@@ -244,14 +246,26 @@ function showEventPopup(event) {
     popup.style.top = `${adjustedY}px`;
     popup.style.left = `${adjustedX}px`;
 
+    console.log(event.target);
+    var eventID = event.target.getAttribute('id')
+    console.log(eventID);
+    var informationFromID = eventID.split('-')
+    console.log(informationFromID);
+    selectedEventDate = `${informationFromID[3]}-${informationFromID[2]}-${informationFromID[1]}`
+    if (informationFromID[4] < 10) {
+        selectedEventTime = `0${informationFromID[4]}:00`
+    } else {
+        selectedEventTime = `${informationFromID[4]}:00`
+    }
+    
     popup.innerHTML = `
         <h2>Create Event</h2>
         <label for="eventName">Event Name:</label>
         <input type="text" id="eventName" required><br>
         <label for="eventTime">Event Time:</label>
-        <input type="time" step="3600000" id="eventTime" required><br>
+        <input type="time" step="3600000" id="eventTime" value=${selectedEventTime} required><br>
         <label for="eventDate">Event Date:</label>
-        <input type="date" id="eventDate" required><br>
+        <input type="date" id="eventDate" value=${selectedEventDate} required><br>
         <label for="eventDescription">Event Description:</label>
         <input type="text" id="eventDescription" required><br>
         <label for="eventCategory">Category:</label>
@@ -324,7 +338,7 @@ function saveEvent(event) {
 
 // TODO: Event Creation functions - record and display user input event details on timeslot
 function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
-    var eventSlotID = "#d" + eventDay+eventMonth+eventYear+eventHour
+    var eventSlotID = "#d" + "-" + eventDay+ "-" + eventMonth+ "-20" + eventYear + "-" + eventHour
     var eventSlot = document.querySelector(eventSlotID)
     eventSlot.removeChild(eventSlot.lastChild)
 
@@ -343,6 +357,7 @@ function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
 // TODO: Event block functions - button to modify event function
 
 // TODO: Event block functions - generate excuse function
+// TODO: Event block functions - regenerate excuse function
 function createExcuseButton(newEventDiv) {
     var generateExcuseButton = document.createElement('button')
     generateExcuseButton.setAttribute('type', 'button')
@@ -361,20 +376,40 @@ function generateExcuse(event) {
             return response.json();
         }).then(function (data) {
             console.log(data[0].excuse);
-            selectedTimeSlotDiv = event.target.parentElement;
-            selectedTimeSlotDiv.removeChild(selectedTimeSlotDiv.querySelector('button'))
-            newExcuse = document.createElement('p')
-            newExcuse.setAttribute('class', 'card-body text-primary')
-            newExcuse.textContent = data[0].excuse
-            selectedTimeSlotDiv.append(newExcuse)
-        });
-}
+            if (event.target.matches('i')) {
+                selectedEventSlotDiv = event.target.parentElement.parentElement;
+            } else {
+                selectedEventSlotDiv = event.target.parentElement;
+            }
+            console.log(selectedEventSlotDiv);
+            if (selectedEventSlotDiv.querySelector('button')) {
+                selectedEventSlotDiv.removeChild(selectedEventSlotDiv.querySelector('button'));
+            } else if (selectedEventSlotDiv.querySelector('p')) {
+                selectedEventSlotDiv.removeChild(selectedEventSlotDiv.querySelector('p'))
+                // selectedEventSlotDiv.removeChild(selectedEventSlotDiv.querySelector('i'));
+            }
+            
+            refreshIcon = document.createElement('i')
+            refreshIcon.setAttribute('class', 'fa-solid fa-arrows-rotate')
+            
 
-// TODO: Event block functions - regenerate excuse function
+            newExcuse = document.createElement('p')
+            newExcuse.setAttribute('class', 'text-secondary')
+            newExcuse.innerHTML = `
+            ${data[0].excuse} <i class='fa-solid fa-arrows-rotate'>
+            `
+            refreshIcon = newExcuse.querySelector('i')
+            refreshIcon.addEventListener('click', generateExcuse)
+            selectedEventSlotDiv.append(newExcuse)
+        });
+};
+
 
 // TODO: Out of Excuses functions - modal function to inform users they are out of excuses 
 
 // TODO: Out of Excuses functions - function to let users input their own excuse
+
+// TODO: Modify event functions - function to modify event details
 
 // TODO: Delete event functions - function to delete event from calendar
 
