@@ -17,10 +17,10 @@ var wedHeader = document.querySelector('#wed-header');
 var thurHeader = document.querySelector('#thur-header');
 var friHeader = document.querySelector('#fri-header');
 var satHeader = document.querySelector('#sat-header');
-
 var timeSlotSections = [sunTimeSection, monTimeSection, tueTimeSection, wedTimeSection, thurTimeSection, friTimeSection, satTimeSection];
 var weekHeaders = [sunHeader, monHeader, tueHeader, wedHeader, thurHeader, friHeader, satHeader];
 var hoursArray = ['12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm', '8pm', '9pm', '10pm', '11pm']
+
 // TODO: Time slot functions - generate unique id / generate the timeblock with id
 function generateTimeSlots() {
     // *removes any existing timeslots first*//
@@ -249,7 +249,6 @@ function showEventPopup(event) {
     var popupWidth = 300; // Adjust the popup width as needed
     var popupHeight = 600; // Adjust the popup height as needed
 
-    // Adjust popup position to stay within window boundaries
     var maxX = window.innerWidth - popupWidth;
     var maxY = window.innerHeight - popupHeight;
 
@@ -320,7 +319,6 @@ function closePopup() {
 
 // TODO: Event Creation functions - save event details to local storage with specific timeslot and date
 function saveEvent(event) {
-    console.log(event.target.parentElement);
     var eventName = document.getElementById('eventName').value;
     var eventDate = document.getElementById('eventDate').value;
     var eventTime = document.getElementById('eventTime').value;
@@ -445,12 +443,135 @@ function generateExcuse(event) {
         });
 };
 
-
-// TODO: Out of Excuses functions - modal function to inform users they are out of excuses 
-
-// TODO: Out of Excuses functions - function to let users input their own excuse
+{/* <label for="eventTime">Event Length:</label>
+        <select id="eventTime" required>
+            ${generateHours()}
+        </select><br></br> */}
 
 // TODO: Modify event functions - function to modify event details
+
+function showModifyEventPopup(event) {
+    
+    var existingPopup = document.querySelector('.event-popup');
+    if (existingPopup) {
+        document.body.removeChild(existingPopup);
+    }
+    var popup = document.createElement('div');
+    popup.setAttribute('class', 'event-popup bg-white border-primary mb-3 p-3');
+
+    var mouseX = event.clientX;
+    var mouseY = event.clientY;
+
+    var popupWidth = 300;
+    var popupHeight = 600;
+
+    var maxX = window.innerWidth - popupWidth;
+    var maxY = window.innerHeight - popupHeight;
+
+    var adjustedX = Math.min(mouseX, maxX);
+    var adjustedY = Math.min(mouseY, maxY);
+
+    popup.style.position = 'fixed';
+    popup.style.top = `${adjustedY}px`;
+    popup.style.left = `${adjustedX}px`;
+
+    var eventID = event.target.parentElement.parentElement.getAttribute('id');
+    console.log(event.target.parentElement.parentElement);
+    var eventDetails = JSON.parse(localStorage.getItem(eventID));
+    console.log(eventDetails.name);
+
+    popup.innerHTML = `
+        <h2>Modify Event</h2>
+        <label for="eventName">Event Name:</label>
+        <input type="text" id="eventName" value="${eventDetails.name}" required><br>
+        <label for="eventTime">Event Time:</label>
+        <input type="time" step="3600000" id="eventTime" value="${eventDetails.time}" required><br>
+        <label for="eventDate">Event Date:</label>
+        <input type="date" id="eventDate" value="${eventDetails.date}" required><br>
+        <label for="eventDescription">Event Description:</label>
+        <input type="text" id="eventDescription" value="${eventDetails.description}" required><br>
+        <label for="eventCategory">Category:</label>
+        <select id="eventCategory" name="category">
+            <option value="family" ${eventDetails.category === 'family' ? 'selected' : ''}>Family</option>
+            <option value="office" ${eventDetails.category === 'office' ? 'selected' : ''}>Office</option>
+            <option value="children" ${eventDetails.category === 'children' ? 'selected' : ''}>Children</option>
+            <option value="college" ${eventDetails.category === 'college' ? 'selected' : ''}>College</option>
+            <option value="party" ${eventDetails.category === 'party' ? 'selected' : ''}>Party</option>
+            <option value="funny" ${eventDetails.category === 'funny' ? 'selected' : ''}>Funny</option>
+            <option value="unbelievable" ${eventDetails.category === 'unbelievable' ? 'selected' : ''}>Unbelievable</option>
+            <option value="developers" ${eventDetails.category === 'developers' ? 'selected' : ''}>Developer</option>
+            <option value="gaming" ${eventDetails.category === 'gaming' ? 'selected' : ''}>Gaming</option>
+        </select>
+        <button onclick="saveModifiedEvent(event, '${eventID}')">Save Changes</button>
+        <button onclick="closePopup()">Cancel</button>
+    `;
+    document.body.appendChild(popup);
+}
+
+function updateModifiedScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
+    if (eventYear < 100) {
+        eventYear = "20" + eventYear
+    }
+    var eventID = "d" + "-" + eventDay + "-" + eventMonth + "-" + eventYear + "-" + eventHour
+    console.log(eventID);
+    var eventSlot = document.querySelector("#" + eventID)
+    console.log(eventSlot);
+    eventSlot.removeChild(eventSlot.lastChild)
+
+    console.log(eventID);
+
+    eventDetails = JSON.parse(localStorage.getItem(eventID))
+    console.log(eventDetails);
+
+    var newEventDiv = document.createElement('div')
+    newEventDiv.setAttribute('class', 'slot-event')
+    newEventDiv.innerHTML = `
+        <h5 class="card-title">${eventDetails.name}</h5>
+    `
+    createExcuseButton(newEventDiv)
+    eventSlot.append(newEventDiv)
+};
+
+function saveModifiedEvent(event, eventID) {
+    var eventName = document.getElementById('eventName').value;
+    var eventDate = document.getElementById('eventDate').value;
+    var eventTime = document.getElementById('eventTime').value;
+    var eventDescription = document.getElementById('eventDescription').value;
+    var eventCategory = document.getElementById('eventCategory').value;
+
+    var eventDetails = {
+        name: eventName,
+        date: eventDate,
+        time: eventTime,
+        description: eventDescription,
+        category: eventCategory
+    };
+
+    if (parseInt(eventDate.substring(8, 10), 10) < 10) {
+        var eventDay = "0" + parseInt(eventDate.substring(8, 10), 10);
+    } else {
+        var eventDay = parseInt(eventDate.substring(8, 10), 10);
+    }
+    var eventHour = parseInt(eventTime.substring(0, 2), 10);
+    var eventMonth = parseInt(eventDate.substring(5, 7), 10);
+    var eventYear = parseInt(eventDate.substring(2, 4), 10);
+
+    console.log(eventHour, eventDay, eventMonth, eventYear);
+    var eventDetailsJSON = JSON.stringify(eventDetails);
+    localStorage.setItem(eventID, eventDetailsJSON);
+    updateModifiedScheduleDisplay(eventHour, eventDay, eventMonth, eventYear)
+    closePopup()
+    return { eventHour, eventDay, eventMonth, eventYear };
+}
+
+timeContainer.addEventListener('click', function (event) {
+    console.log("Clicked element:", event.target);
+    var target = event.target;
+    if (target.innerText.toLowerCase().includes('test')) {
+        showModifyEventPopup(event);
+        console.log("Clicked element:", event.target);
+    }
+});
 
 // TODO: Delete event functions - function to delete event from calendar
 
