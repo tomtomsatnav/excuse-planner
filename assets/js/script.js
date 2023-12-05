@@ -67,6 +67,11 @@ function generateTimeSlots() {
                 var informationFromID = timeSlotID.split('-')
                 console.log(informationFromID);
                 updateScheduleDisplay(informationFromID[4], informationFromID[1], informationFromID[2], informationFromID[3])
+                excuseID = timeSlotID + "excuse"
+                if (localStorage.getItem(excuseID)) {
+                    var excuseButton = newTimeSlot.querySelector('.excuse-button');
+                    excuseButton.click()
+                }
             };
         };
     };
@@ -381,20 +386,29 @@ function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
 function createExcuseButton(newEventDiv) {
     var generateExcuseButton = document.createElement('button')
     generateExcuseButton.setAttribute('type', 'button')
-    generateExcuseButton.setAttribute('class', 'btn btn-outline-primary')
+    generateExcuseButton.setAttribute('class', 'btn btn-outline-primary excuse-button')
     generateExcuseButton.textContent = "Generate excuse!"
     generateExcuseButton.addEventListener('click', generateExcuse)
     newEventDiv.append(generateExcuseButton)
 }
 
 function generateExcuse(event) {
-    var eventDetails = JSON.parse(localStorage.getItem('eventDetails'))
+    if (event.target.parentElement.parentElement.matches('.time-slot')) {
+        var eventID = event.target.parentElement.parentElement.getAttribute('id')
+    } else {
+        var eventID = event.target.parentElement.parentElement.parentElement.getAttribute('id')
+    }
+    // console.log(event.target.parentElement.parentElement);
+    var eventDetails = JSON.parse(localStorage.getItem(eventID))
+    var excuseStorageID = eventID + "excuse" 
+
     console.log(eventDetails);
     var excuserURL = "https://excuser-three.vercel.app/v1/excuse/" + eventDetails.category;
     fetch(excuserURL)
         .then(function (response) {
             return response.json();
         }).then(function (data) {
+            console.log(data);
             console.log(data[0].excuse);
             if (event.target.matches('i')) {
                 selectedEventSlotDiv = event.target.parentElement.parentElement;
@@ -404,23 +418,30 @@ function generateExcuse(event) {
             console.log(selectedEventSlotDiv);
             if (selectedEventSlotDiv.querySelector('button')) {
                 selectedEventSlotDiv.removeChild(selectedEventSlotDiv.querySelector('button'));
+                if (localStorage.getItem(excuseStorageID)) {
+                    var randomExcuse = localStorage.getItem(excuseStorageID)
+                } else {
+                    var randomExcuse = data[0].excuse
+                }
             } else if (selectedEventSlotDiv.querySelector('p')) {
                 selectedEventSlotDiv.removeChild(selectedEventSlotDiv.querySelector('p'))
-                // selectedEventSlotDiv.removeChild(selectedEventSlotDiv.querySelector('i'));
+                randomExcuse = data[0].excuse
             }
 
             refreshIcon = document.createElement('i')
             refreshIcon.setAttribute('class', 'fa-solid fa-arrows-rotate')
 
-
             newExcuse = document.createElement('p')
-            newExcuse.setAttribute('class', 'text-secondary')
+            newExcuse.setAttribute('class', 'text-secondary excuse-text')
             newExcuse.innerHTML = `
-            ${data[0].excuse} <i class='fa-solid fa-arrows-rotate'>
+            ${randomExcuse} <i class='fa-solid fa-arrows-rotate'>
             `
             refreshIcon = newExcuse.querySelector('i')
             refreshIcon.addEventListener('click', generateExcuse)
             selectedEventSlotDiv.append(newExcuse)
+
+            // store excuse to local storage
+            localStorage.setItem(excuseStorageID, randomExcuse)
         });
 };
 
