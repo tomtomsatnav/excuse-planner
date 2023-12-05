@@ -209,7 +209,6 @@ function showEventPopup(event) {
     var popupWidth = 300; // Adjust the popup width as needed
     var popupHeight = 300; // Adjust the popup height as needed
 
-    // Adjust popup position to stay within window boundaries
     var maxX = window.innerWidth - popupWidth;
     var maxY = window.innerHeight - popupHeight;
 
@@ -224,8 +223,10 @@ function showEventPopup(event) {
       <h2>Create Event</h2>
       <label for="eventName">Event Name:</label>
       <input type="text" id="eventName" required><br>
-      <label for="eventTime">Event Time:</label>
-      <input type="time" step="3600000" id="eventTime" required><br>
+      <label for="eventTime">Event Length:</label>
+        <select id="eventTime" required>
+            ${generateHours()}
+        </select><br>
       <label for="eventDate">Event Date:</label>
       <input type="date" id="eventDate" required><br>
       <label for="eventDescription">Event Description:</label>
@@ -242,6 +243,14 @@ function showEventPopup(event) {
         showEventPopup(event);
     }
 });
+
+function generateHours() {
+    var options = '';
+    for (let i = 0; i < 24; i++) {
+        options += `<option value="${i}">${i}:00</option>`;
+    }
+    return options;
+}
 
 // TODO: Event Creation functions - close popup
 function closePopup() {
@@ -261,7 +270,7 @@ function saveEvent() {
     var eventDetails = {
         name: eventName,
         date: eventDate,
-        time: eventTime,
+        length: eventTime,
         description: eventDescription
     };
     
@@ -270,10 +279,10 @@ function saveEvent() {
     var eventMonth = parseInt(eventDate.substring(5, 7), 10);
     var eventYear = parseInt(eventDate.substring(2, 4), 10);
 
-
     console.log(eventHour, eventDay, eventMonth, eventYear);
     var eventDetailsJSON = JSON.stringify(eventDetails);
     localStorage.setItem('eventDetails', eventDetailsJSON);
+    closePopup();
     return { eventHour, eventDay, eventMonth, eventYear };
 };
 
