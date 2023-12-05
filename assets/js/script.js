@@ -24,6 +24,7 @@ var hoursArray = ['12am', '1am', '2am', '3am', '4am', '5am', '6am', '7am', '8am'
 // TODO: Time slot functions - generate unique id / generate the timeblock with id
 function generateTimeSlots() {
     // *removes any existing timeslots first*//
+
     for (let j = 0; j < timeSlotSections.length; j++) {
         if (timeSlotSections[j].children.length > 0) {
             while (timeSlotSections[j].firstChild) {
@@ -193,7 +194,8 @@ function highlightCurrentDay() {
         }
         // console.log(currentDayID);
         var currentTimeSlot = document.querySelector(currentDayID)
-        currentTimeSlot.setAttribute('class', 'time-slot list-group-item bg-secondary')
+        currentTimeSlot.parentElement.parentElement.setAttribute('class', 'card daycard border-success border-2')
+        // currentTimeSlot.setAttribute('class', 'time-slot list-group-item current-day')
     }
 };
 
@@ -275,7 +277,7 @@ function showEventPopup(event) {
         selectedEventTime = `${informationFromID[4]}:00`
     }
 
-    popup.innerHTML = `
+    popup.innerHTML = ` 
         <h2>Create Event</h2>
         <label for="eventName">Event Name:</label>
         <input type="text" id="eventName" required><br>
@@ -372,9 +374,10 @@ function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
 
     var newEventDiv = document.createElement('div')
     newEventDiv.setAttribute('class', 'slot-event')
-    newEventDiv.innerHTML = `
-        <h5 class="card-title">${eventDetails.name}</h5>
-    `
+    // newEventDiv.innerHTML = `
+    //     <h5 class="card-title">${eventDetails.name}</h5>
+    // `
+    newEventDiv.textContent = eventDetails.name
     createExcuseButton(newEventDiv)
     eventSlot.append(newEventDiv)
 };
