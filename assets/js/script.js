@@ -56,9 +56,18 @@ function generateTimeSlots() {
                 newHourDiv.textContent = hoursArray[i - 1]
                 newTimeSlot.append(newHourDiv, newEventDiv)
                 // newEventDiv.textContent = timeSlotID;
-            };
+            }
 
             timeSlotSections[j].appendChild(newTimeSlot); //append to column
+
+            // to retrieve localstorage data
+            if (localStorage.getItem(timeSlotID)) {
+                console.log("there's an item in " + timeSlotID);
+
+                var informationFromID = timeSlotID.split('-')
+                console.log(informationFromID);
+                updateScheduleDisplay(informationFromID[4], informationFromID[1], informationFromID[2], informationFromID[3])
+            };
         };
     };
 };
@@ -260,7 +269,7 @@ function showEventPopup(event) {
     } else {
         selectedEventTime = `${informationFromID[4]}:00`
     }
-    
+
     popup.innerHTML = `
         <h2>Create Event</h2>
         <label for="eventName">Event Name:</label>
@@ -335,15 +344,20 @@ function saveEvent(event) {
     console.log(eventHour, eventDay, eventMonth, eventYear);
     var eventDetailsJSON = JSON.stringify(eventDetails);
     localStorage.setItem(eventID, eventDetailsJSON);
-    updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear )
+    updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear)
     closePopup()
     return { eventHour, eventDay, eventMonth, eventYear };
 };
 
 // TODO: Event Creation functions - record and display user input event details on timeslot
 function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
-    var eventID = "d" + "-" + eventDay+ "-" + eventMonth+ "-20" + eventYear + "-" + eventHour
+    if (eventYear < 100) {
+        eventYear = "20" + eventYear
+    }
+    var eventID = "d" + "-" + eventDay + "-" + eventMonth + "-" + eventYear + "-" + eventHour
+    console.log(eventID);
     var eventSlot = document.querySelector("#" + eventID)
+    console.log(eventSlot);
     eventSlot.removeChild(eventSlot.lastChild)
 
     console.log(eventID);
@@ -394,10 +408,10 @@ function generateExcuse(event) {
                 selectedEventSlotDiv.removeChild(selectedEventSlotDiv.querySelector('p'))
                 // selectedEventSlotDiv.removeChild(selectedEventSlotDiv.querySelector('i'));
             }
-            
+
             refreshIcon = document.createElement('i')
             refreshIcon.setAttribute('class', 'fa-solid fa-arrows-rotate')
-            
+
 
             newExcuse = document.createElement('p')
             newExcuse.setAttribute('class', 'text-secondary')
