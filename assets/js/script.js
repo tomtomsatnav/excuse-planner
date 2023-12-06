@@ -55,7 +55,7 @@ function generateTimeSlots() {
                 newEventDiv.setAttribute('class', 'slot-event')
                 newHourDiv.textContent = hoursArray[i - 1]
                 newTimeSlot.append(newHourDiv, newEventDiv)
-                // newEventDiv.textContent = timeSlotID;
+                newEventDiv.textContent = timeSlotID;
             }
 
             timeSlotSections[j].appendChild(newTimeSlot); //append to column
@@ -263,7 +263,7 @@ function showEventPopup(event) {
     var eventID = event.target.getAttribute('id')
     console.log(eventID);
 
-    popup.setAttribute('data-storageID', eventID)
+    // popup.setAttribute('data-storageID', eventID)
 
     var informationFromID = eventID.split('-')
     console.log(informationFromID);
@@ -324,8 +324,8 @@ function saveEvent(event) {
     var eventTime = document.getElementById('eventTime').value;
     var eventDescription = document.getElementById('eventDescription').value;
     var eventCategory = document.getElementById('eventCategory').value;
-    var eventID = event.target.parentElement.getAttribute('data-storageID')
 
+    console.log("the event time is" + eventTime);
     var eventDetails = {
         name: eventName,
         date: eventDate,
@@ -343,8 +343,10 @@ function saveEvent(event) {
     var eventMonth = parseInt(eventDate.substring(5, 7), 10);
     var eventYear = parseInt(eventDate.substring(2, 4), 10);
 
+    var eventID = "d-" + eventDay + "-" + eventMonth + "-20" + eventYear + "-" + eventHour;
+    console.log(eventID);
 
-    console.log(eventHour, eventDay, eventMonth, eventYear);
+    console.log("hey" + eventHour, eventDay, eventMonth, eventYear);
     var eventDetailsJSON = JSON.stringify(eventDetails);
     localStorage.setItem(eventID, eventDetailsJSON);
     updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear)
@@ -556,8 +558,14 @@ function saveModifiedEvent(event, eventID) {
     var eventMonth = parseInt(eventDate.substring(5, 7), 10);
     var eventYear = parseInt(eventDate.substring(2, 4), 10);
 
-    console.log(eventHour, eventDay, eventMonth, eventYear);
+    console.log("look at me" + eventHour, eventDay, eventMonth, eventYear);
+    var newEventID = "d-" + eventDay + "-" + eventMonth + "-20" + eventYear + "-" + eventHour  
+    console.log("hi i'm the new eventID" + newEventID);
     var eventDetailsJSON = JSON.stringify(eventDetails);
+    if (eventID != newEventID) {
+        localStorage.setItem(newEventID, eventDetailsJSON);
+        localStorage.removeItem(eventID)
+    }
     localStorage.setItem(eventID, eventDetailsJSON);
     updateModifiedScheduleDisplay(eventHour, eventDay, eventMonth, eventYear)
     closePopup()
