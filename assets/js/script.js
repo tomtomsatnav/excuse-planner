@@ -61,66 +61,6 @@ var hoursArray = [
   "10pm",
   "11pm",
 ];
-var timeContainer = document.querySelector("#time-container");
-var buttonsContainer = document.querySelector("#buttons-container");
-var sunTimeSection = document.querySelector("#sun-hours");
-var monTimeSection = document.querySelector("#mon-hours");
-var tueTimeSection = document.querySelector("#tue-hours");
-var wedTimeSection = document.querySelector("#wed-hours");
-var thurTimeSection = document.querySelector("#thur-hours");
-var friTimeSection = document.querySelector("#fri-hours");
-var satTimeSection = document.querySelector("#sat-hours");
-var sunHeader = document.querySelector("#sun-header");
-var monHeader = document.querySelector("#mon-header");
-var tueHeader = document.querySelector("#tue-header");
-var wedHeader = document.querySelector("#wed-header");
-var thurHeader = document.querySelector("#thur-header");
-var friHeader = document.querySelector("#fri-header");
-var satHeader = document.querySelector("#sat-header");
-var timeSlotSections = [
-  sunTimeSection,
-  monTimeSection,
-  tueTimeSection,
-  wedTimeSection,
-  thurTimeSection,
-  friTimeSection,
-  satTimeSection,
-];
-var weekHeaders = [
-  sunHeader,
-  monHeader,
-  tueHeader,
-  wedHeader,
-  thurHeader,
-  friHeader,
-  satHeader,
-];
-var hoursArray = [
-  "12am",
-  "1am",
-  "2am",
-  "3am",
-  "4am",
-  "5am",
-  "6am",
-  "7am",
-  "8am",
-  "9am",
-  "10am",
-  "11am",
-  "12pm",
-  "1pm",
-  "2pm",
-  "3pm",
-  "4pm",
-  "5pm",
-  "6pm",
-  "7pm",
-  "8pm",
-  "9pm",
-  "10pm",
-  "11pm",
-];
 
 // TODO: Time slot functions - generate unique id / generate the timeblock with id
 function generateTimeSlots() {
@@ -144,6 +84,7 @@ function generateTimeSlots() {
         timeSlotID = selectedDates[j]; // first list element is for holiday dates
         newTimeSlot.setAttribute("id", timeSlotID); // unique ID for each time slot
         newTimeSlot.setAttribute("class", "list-group-item holiday"); // adds bootstrap classes and holiday class
+        timeSlotSections[j].appendChild(newTimeSlot); //append to column
       } else {
         timeSlotID = selectedDates[j] + (i - 1); // the remaining hours (0 - 24)
         newTimeSlot.setAttribute("id", timeSlotID); // unique ID for each time slot
@@ -157,30 +98,32 @@ function generateTimeSlots() {
         newHourDiv.textContent = hoursArray[i - 1];
         newTimeSlot.append(newHourDiv, newEventDiv);
         // newEventDiv.textContent = timeSlotID;
-      }
 
-      timeSlotSections[j].appendChild(newTimeSlot); //append to column
+        timeSlotSections[j].appendChild(newTimeSlot); //append to column
 
-      //** to retrieve localstorage data **//
-      if (localStorage.getItem(timeSlotID)) {
-        // console.log("there's an item in " + timeSlotID);
-        var informationFromID = timeSlotID.split("-");
-        // console.log(informationFromID);
-        updateScheduleDisplay(
-          informationFromID[4],
-          informationFromID[1],
-          informationFromID[2],
-          informationFromID[3]
-        );
-        excuseID = timeSlotID + "excuse";
-        if (localStorage.getItem(excuseID)) {
-          var excuseButton = newTimeSlot.querySelector(".excuse-button");
-          excuseButton.click();
+        //** to retrieve localstorage data **//
+        if (localStorage.getItem(timeSlotID)) {
+          console.log("there's an item in " + timeSlotID);
+          var informationFromID = timeSlotID.split("-");
+          // console.log(informationFromID);
+          updateScheduleDisplay(
+            informationFromID[4],
+            informationFromID[1],
+            informationFromID[2],
+            informationFromID[3]
+          );
+          excuseID = timeSlotID + "excuse";
+          if (localStorage.getItem(excuseID)) {
+            var excuseButton = newTimeSlot.querySelector(".excuse-button");
+            excuseButton.click();
+          }
+          newTimeSlot.addEventListener("click", showModifyEventPopup);
+        } else {
+          newTimeSlot.addEventListener("click", showEventPopup);
         }
-        newTimeSlot.addEventListener("click", showModifyEventPopup);
-      } else {
-        newTimeSlot.addEventListener("click", showEventPopup);
       }
+
+
       //   newTimeSlot.addEventListener("click", function (event) {
       //     if (localStorage.getItem(timeSlotID)) {
       //       showModifyEventPopup(event);
@@ -273,7 +216,7 @@ function createNextWeekButton() {
 
 function previousWeek() {
   var weekChange = timeContainer.getAttribute("data-week-change");
-  removeCurrentDayHighlight()
+  removeCurrentDayHighlight();
   weekChange -= 1;
   // console.log("previous week clicked: " + weekChange);
   timeContainer.setAttribute("data-week-change", weekChange);
@@ -302,7 +245,7 @@ function todayWeek() {
 
 function nextWeek() {
   var weekChange = timeContainer.getAttribute("data-week-change");
-  removeCurrentDayHighlight()
+  removeCurrentDayHighlight();
   weekChange = parseInt(weekChange) + 1;
   // console.log("next week clicked: " + weekChange);
   timeContainer.setAttribute("data-week-change", weekChange);
@@ -322,29 +265,29 @@ function highlightCurrentDay() {
   //     if (i == 0) {
   var currentDayID = "#d" + currentDay;
   // } else {
-    //     var currentDayID = '#d' + currentDay + (i - 1)
-    // }
-    // console.log(currentDayID);
+  //     var currentDayID = '#d' + currentDay + (i - 1)
+  // }
+  // console.log(currentDayID);
+  var currentTimeSlot = document.querySelector(currentDayID);
+  currentTimeSlot.parentElement.parentElement.setAttribute(
+    "class",
+    "card daycard border-success border-2"
+  );
+  // currentTimeSlot.setAttribute('class', 'time-slot list-group-item current-day')
+  // }
+}
+
+function removeCurrentDayHighlight() {
+  var weekChange = timeContainer.getAttribute("data-week-change");
+  if (weekChange == 0) {
+    var currentDay = dayjs().format("-DD-MM-YYYY-");
+    var currentDayID = "#d" + currentDay;
     var currentTimeSlot = document.querySelector(currentDayID);
     currentTimeSlot.parentElement.parentElement.setAttribute(
       "class",
-      "card daycard border-success border-2"
-      );
-      // currentTimeSlot.setAttribute('class', 'time-slot list-group-item current-day')
-      // }
-    }
-    
-    function removeCurrentDayHighlight() {
-      var weekChange = timeContainer.getAttribute("data-week-change");
-      if (weekChange == 0) {
-        var currentDay = dayjs().format("-DD-MM-YYYY-");
-        var currentDayID = "#d" + currentDay;
-        var currentTimeSlot = document.querySelector(currentDayID);
-        currentTimeSlot.parentElement.parentElement.setAttribute(
-          "class",
-          "card daycard"
-          );
-      }
+      "card daycard"
+    );
+  }
 }
 
 // TODO: Holiday API functions - fetch and match formattedDate to holiday
