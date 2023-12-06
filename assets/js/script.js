@@ -273,6 +273,7 @@ function createNextWeekButton() {
 
 function previousWeek() {
   var weekChange = timeContainer.getAttribute("data-week-change");
+  removeCurrentDayHighlight()
   weekChange -= 1;
   // console.log("previous week clicked: " + weekChange);
   timeContainer.setAttribute("data-week-change", weekChange);
@@ -301,6 +302,7 @@ function todayWeek() {
 
 function nextWeek() {
   var weekChange = timeContainer.getAttribute("data-week-change");
+  removeCurrentDayHighlight()
   weekChange = parseInt(weekChange) + 1;
   // console.log("next week clicked: " + weekChange);
   timeContainer.setAttribute("data-week-change", weekChange);
@@ -315,19 +317,35 @@ function nextWeek() {
 
 // TODO: Dayjs functions - highlight current day column?
 function highlightCurrentDay() {
-    currentDay = dayjs().format('-DD-MM-YYYY-')
-    for (let i = 0; i < 25; i++) {
-        if (i == 0) {
-            var currentDayID = '#d' + currentDay
-        } else {
-            var currentDayID = '#d' + currentDay + (i - 1)
-        }
-        // console.log(currentDayID);
-        var currentTimeSlot = document.querySelector(currentDayID)
-        currentTimeSlot.parentElement.parentElement.setAttribute('class', 'card daycard border-success border-2')
-        // currentTimeSlot.setAttribute('class', 'time-slot list-group-item current-day')
+  var currentDay = dayjs().format("-DD-MM-YYYY-");
+  // for (let i = 0; i < 25; i++) {
+  //     if (i == 0) {
+  var currentDayID = "#d" + currentDay;
+  // } else {
+    //     var currentDayID = '#d' + currentDay + (i - 1)
+    // }
+    // console.log(currentDayID);
+    var currentTimeSlot = document.querySelector(currentDayID);
+    currentTimeSlot.parentElement.parentElement.setAttribute(
+      "class",
+      "card daycard border-success border-2"
+      );
+      // currentTimeSlot.setAttribute('class', 'time-slot list-group-item current-day')
+      // }
     }
-};
+    
+    function removeCurrentDayHighlight() {
+      var weekChange = timeContainer.getAttribute("data-week-change");
+      if (weekChange == 0) {
+        var currentDay = dayjs().format("-DD-MM-YYYY-");
+        var currentDayID = "#d" + currentDay;
+        var currentTimeSlot = document.querySelector(currentDayID);
+        currentTimeSlot.parentElement.parentElement.setAttribute(
+          "class",
+          "card daycard"
+          );
+      }
+}
 
 // TODO: Holiday API functions - fetch and match formattedDate to holiday
 // TODO: Holiday API functions - display holiday to calendar
@@ -499,15 +517,15 @@ function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
   eventDetails = JSON.parse(localStorage.getItem(eventID));
   console.log(eventDetails);
 
-    var newEventDiv = document.createElement('div')
-    newEventDiv.setAttribute('class', 'slot-event')
-    // newEventDiv.innerHTML = `
-    //     <h5 class="card-title">${eventDetails.name}</h5>
-    // `
-    newEventDiv.textContent = eventDetails.name
-    createExcuseButton(newEventDiv)
-    eventSlot.append(newEventDiv)
-};
+  var newEventDiv = document.createElement("div");
+  newEventDiv.setAttribute("class", "slot-event");
+  // newEventDiv.innerHTML = `
+  //     <h5 class="card-title">${eventDetails.name}</h5>
+  // `
+  newEventDiv.textContent = eventDetails.name;
+  createExcuseButton(newEventDiv);
+  eventSlot.append(newEventDiv);
+}
 
 // TODO: Event block functions - button to modify event function
 
@@ -612,11 +630,11 @@ function showModifyEventPopup(event) {
   popup.style.left = `${adjustedX}px`;
 
   if (event.target.matches(".slot-event")) {
-    var eventID = event.target.parentElement.getAttribute("id")
+    var eventID = event.target.parentElement.getAttribute("id");
   } else if (event.target.matches(".time-slot")) {
-    var eventID = event.target.getAttribute("id")
+    var eventID = event.target.getAttribute("id");
   } else if (event.target.matches("i")) {
-    return
+    return;
   } else {
     var eventID = event.target.parentElement.parentElement.getAttribute("id");
   }
