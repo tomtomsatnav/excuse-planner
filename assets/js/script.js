@@ -160,12 +160,12 @@ function generateTimeSlots() {
       }
 
       timeSlotSections[j].appendChild(newTimeSlot); //append to column
-      // to retrieve localstorage data
-      if (localStorage.getItem(timeSlotID)) {
-        console.log("there's an item in " + timeSlotID);
 
+      //** to retrieve localstorage data **//
+      if (localStorage.getItem(timeSlotID)) {
+        // console.log("there's an item in " + timeSlotID);
         var informationFromID = timeSlotID.split("-");
-        console.log(informationFromID);
+        // console.log(informationFromID);
         updateScheduleDisplay(
           informationFromID[4],
           informationFromID[1],
@@ -177,14 +177,17 @@ function generateTimeSlots() {
           var excuseButton = newTimeSlot.querySelector(".excuse-button");
           excuseButton.click();
         }
+        newTimeSlot.addEventListener("click", showModifyEventPopup);
+      } else {
+        newTimeSlot.addEventListener("click", showEventPopup);
       }
-      newTimeSlot.addEventListener("click", function (event) {
-        if (localStorage.getItem(timeSlotID)) {
-          showModifyEventPopup(event);
-        } else {
-          showEventPopup(event);
-        }
-      });
+      //   newTimeSlot.addEventListener("click", function (event) {
+      //     if (localStorage.getItem(timeSlotID)) {
+      //       showModifyEventPopup(event);
+      //     } else {
+      //       showEventPopup(event);
+      //     }
+      //   });
     }
   }
 }
@@ -397,9 +400,9 @@ function showEventPopup(event) {
   popup.style.top = `${adjustedY}px`;
   popup.style.left = `${adjustedX}px`;
 
-  console.log(event.target);
+  // console.log(event.target);
   var eventID = event.target.getAttribute("id");
-  console.log(eventID);
+  // console.log(eventID);
 
   // popup.setAttribute("data-storageID", eventID);
 
@@ -420,8 +423,6 @@ function showEventPopup(event) {
         <input type="time" step="3600000" id="eventTime" value=${selectedEventTime} required><br>
         <label for="eventDate">Event Date:</label>
         <input type="date" id="eventDate" value=${selectedEventDate} required><br>
-        <label for="eventDescription">Event Description:</label>
-        <input type="text" id="eventDescription" required><br>
         <label for="eventCategory">Category:</label>
         <select id="eventCategory" name="category">
         <option value="family">Family</option>
@@ -440,14 +441,6 @@ function showEventPopup(event) {
   document.body.appendChild(popup);
 }
 
-function generateHours() {
-  var options = "";
-  for (let i = 0; i < 24; i++) {
-    options += `<option value="${i}">${i}:00</option>`;
-  }
-  return options;
-}
-
 // TODO: Event Creation functions - close popup
 function closePopup() {
   var popup = document.querySelector(".event-popup");
@@ -461,7 +454,6 @@ function saveEvent(event) {
   var eventName = document.getElementById("eventName").value;
   var eventDate = document.getElementById("eventDate").value;
   var eventTime = document.getElementById("eventTime").value;
-  var eventDescription = document.getElementById("eventDescription").value;
   var eventCategory = document.getElementById("eventCategory").value;
   var eventID = event.target.parentElement.getAttribute("data-storageID");
 
@@ -469,7 +461,6 @@ function saveEvent(event) {
     name: eventName,
     date: eventDate,
     time: eventTime,
-    description: eventDescription,
     category: eventCategory,
   };
 
@@ -546,7 +537,7 @@ function generateExcuse(event) {
   var eventDetails = JSON.parse(localStorage.getItem(eventID));
   var excuseStorageID = eventID + "excuse";
 
-  console.log(eventDetails);
+  // console.log(eventDetails);
   var excuserURL =
     "https://excuser-three.vercel.app/v1/excuse/" + eventDetails.category;
   fetch(excuserURL)
@@ -554,14 +545,14 @@ function generateExcuse(event) {
       return response.json();
     })
     .then(function (data) {
-      console.log(data);
-      console.log(data[0].excuse);
+      // console.log(data);
+      // console.log(data[0].excuse);
       if (event.target.matches("i")) {
         selectedEventSlotDiv = event.target.parentElement.parentElement;
       } else {
         selectedEventSlotDiv = event.target.parentElement;
       }
-      console.log(selectedEventSlotDiv);
+      // console.log(selectedEventSlotDiv);
       if (selectedEventSlotDiv.querySelector("button")) {
         selectedEventSlotDiv.removeChild(
           selectedEventSlotDiv.querySelector("button")
@@ -595,13 +586,6 @@ function generateExcuse(event) {
     });
 }
 
-{
-  /* <label for="eventTime">Event Length:</label>
-        <select id="eventTime" required>
-            ${generateHours()}
-        </select><br></br> */
-}
-
 // TODO: Modify event functions - function to modify event details
 
 function showModifyEventPopup(event) {
@@ -628,7 +612,15 @@ function showModifyEventPopup(event) {
   popup.style.top = `${adjustedY}px`;
   popup.style.left = `${adjustedX}px`;
 
-  var eventID = event.target.parentElement.parentElement.getAttribute("id");
+  if (event.target.matches(".slot-event")) {
+    var eventID = event.target.parentElement.getAttribute("id")
+  } else if (event.target.matches(".time-slot")) {
+    var eventID = event.target.getAttribute("id")
+  } else if (event.target.matches("i")) {
+    return
+  } else {
+    var eventID = event.target.parentElement.parentElement.getAttribute("id");
+  }
   console.log(event.target.parentElement.parentElement);
   var eventDetails = JSON.parse(localStorage.getItem(eventID));
   console.log(eventDetails.name);
@@ -646,10 +638,6 @@ function showModifyEventPopup(event) {
         <label for="eventDate">Event Date:</label>
         <input type="date" id="eventDate" value="${
           eventDetails.date
-        }" required><br>
-        <label for="eventDescription">Event Description:</label>
-        <input type="text" id="eventDescription" value="${
-          eventDetails.description
         }" required><br>
         <label for="eventCategory">Category:</label>
         <select id="eventCategory" name="category">
@@ -722,14 +710,12 @@ function saveModifiedEvent(event, eventID) {
   var eventName = document.getElementById("eventName").value;
   var eventDate = document.getElementById("eventDate").value;
   var eventTime = document.getElementById("eventTime").value;
-  var eventDescription = document.getElementById("eventDescription").value;
   var eventCategory = document.getElementById("eventCategory").value;
 
   var eventDetails = {
     name: eventName,
     date: eventDate,
     time: eventTime,
-    description: eventDescription,
     category: eventCategory,
   };
 
@@ -783,7 +769,7 @@ function deleteEvent(eventID) {
 
   var eventSlot = document.querySelector("#" + eventID);
   eventSlot.parentNode.replaceChild(newTimeSlot, eventSlot);
-
+  newTimeSlot.addEventListener("click", showEventPopup);
   localStorage.removeItem(eventID);
 
   closePopup();
