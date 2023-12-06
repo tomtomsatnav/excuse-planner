@@ -558,8 +558,14 @@ function saveModifiedEvent(event, eventID) {
     var eventMonth = parseInt(eventDate.substring(5, 7), 10);
     var eventYear = parseInt(eventDate.substring(2, 4), 10);
 
-    console.log(eventHour, eventDay, eventMonth, eventYear);
+    console.log("look at me" + eventHour, eventDay, eventMonth, eventYear);
+    var newEventID = "d-" + eventDay + "-" + eventMonth + "-20" + eventYear + "-" + eventHour  
+    console.log("hi i'm the new eventID" + newEventID);
     var eventDetailsJSON = JSON.stringify(eventDetails);
+    if (eventID != newEventID) {
+        localStorage.setItem(newEventID, eventDetailsJSON);
+        localStorage.removeItem(eventID)
+    }
     localStorage.setItem(eventID, eventDetailsJSON);
     updateModifiedScheduleDisplay(eventHour, eventDay, eventMonth, eventYear)
     closePopup()
