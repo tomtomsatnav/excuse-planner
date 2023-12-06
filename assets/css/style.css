@@ -1,7 +1,7 @@
 /* setting same height for cells */
 
 .card-header, .list-group-item {
-    height: 7vh;
+    height: 8vh;
 }
 
 /* setting holiday line */
