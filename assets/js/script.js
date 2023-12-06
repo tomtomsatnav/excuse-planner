@@ -453,6 +453,10 @@ function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
   console.log(eventID);
   var eventSlot = document.querySelector("#" + eventID);
   console.log(eventSlot);
+  if (eventSlot == null) {
+    console.log("oh nooooo");
+    return
+  }
   eventSlot.removeChild(eventSlot.lastChild);
 
   console.log(eventID);
@@ -466,6 +470,8 @@ function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
   //     <h5 class="card-title">${eventDetails.name}</h5>
   // `
   newEventDiv.textContent = eventDetails.name;
+  eventSlot.removeEventListener("click", showEventPopup)
+  eventSlot.addEventListener("click", showModifyEventPopup)
   createExcuseButton(newEventDiv);
   eventSlot.append(newEventDiv);
 }
@@ -576,7 +582,7 @@ function showModifyEventPopup(event) {
     var eventID = event.target.parentElement.getAttribute("id");
   } else if (event.target.matches(".time-slot")) {
     var eventID = event.target.getAttribute("id");
-  } else if (event.target.matches("i")) {
+  } else if (event.target.matches("i") || event.target.matches("button")) {
     return;
   } else {
     var eventID = event.target.parentElement.parentElement.getAttribute("id");
@@ -649,6 +655,9 @@ function updateModifiedScheduleDisplay(
     "d" + "-" + eventDay + "-" + eventMonth + "-" + eventYear + "-" + eventHour;
   console.log(eventID);
   var eventSlot = document.querySelector("#" + eventID);
+  if (eventSlot == null) {
+    return
+  }
   console.log(eventSlot);
   eventSlot.removeChild(eventSlot.lastChild);
 
@@ -659,9 +668,11 @@ function updateModifiedScheduleDisplay(
 
   var newEventDiv = document.createElement("div");
   newEventDiv.setAttribute("class", "slot-event");
-  newEventDiv.innerHTML = `
-        <h5 class="card-title">${eventDetails.name}</h5>
-    `;
+  newEventDiv.setAttribute("class", "slot-event");
+
+  newEventDiv.textContent = eventDetails.name;
+  eventSlot.removeEventListener("click", showEventPopup)
+  eventSlot.addEventListener("click", showModifyEventPopup)
   createExcuseButton(newEventDiv);
   eventSlot.append(newEventDiv);
 }
@@ -694,7 +705,8 @@ function saveModifiedEvent(event, eventID) {
   var eventDetailsJSON = JSON.stringify(eventDetails);
   if (eventID != newEventID) {
     localStorage.setItem(newEventID, eventDetailsJSON);
-    localStorage.removeItem(eventID);
+    // localStorage.removeItem(eventID);
+    deleteEvent(eventID)
   }
   localStorage.setItem(eventID, eventDetailsJSON);
   updateModifiedScheduleDisplay(eventHour, eventDay, eventMonth, eventYear);
@@ -731,6 +743,8 @@ function deleteEvent(eventID) {
   eventSlot.parentNode.replaceChild(newTimeSlot, eventSlot);
   newTimeSlot.addEventListener("click", showEventPopup);
   localStorage.removeItem(eventID);
+  eventExcuse = eventID + "excuse"
+  localStorage.removeItem(eventExcuse)
 
   closePopup();
 }
