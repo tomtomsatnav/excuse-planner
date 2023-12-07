@@ -366,13 +366,13 @@ function showEventPopup(event) {
   popup.innerHTML = `
         <h2>Create Event</h2>
         <label for="eventName">Event Name:</label>
-        <input type="text" id="eventName" required><br>
+        <input type="text" class="mb-1" id="eventName" required><br>
         <label for="eventTime">Event Time:</label>
-        <input type="time" step="3600000" id="eventTime" value=${selectedEventTime} required><br>
+        <input type="time" class="mb-1" step="3600000" id="eventTime" value=${selectedEventTime} required><br>
         <label for="eventDate">Event Date:</label>
-        <input type="date" id="eventDate" value=${selectedEventDate} required><br>
+        <input type="date" class="mb-1" id="eventDate" value=${selectedEventDate} required><br>
         <label for="eventCategory">Category:</label>
-        <select id="eventCategory" name="category">
+        <select id="eventCategory" class="mb-2" name="category">
         <option value="family">Family</option>
         <option value="office">Office</option>
         <option value="children">Children</option>
@@ -382,9 +382,9 @@ function showEventPopup(event) {
         <option value="unbelievable">Unbelievable</option>
         <option value="developers">Developer</option>
         <option value="gaming">Gaming</option>
-        </select>
-        <button onclick="saveEvent(event)">Save Event</button>
-        <button onclick="closePopup()">Cancel</button>
+        </select> <br>
+        <button class="btn btn-secondary btn-sm popup-button" onclick="closePopup()">Cancel</button>
+        <button class="btn btn-primary btn-sm popup-button" onclick="saveEvent(event)">Save Event</button>
     `;
   document.body.appendChild(popup);
 }
@@ -507,19 +507,19 @@ function showModifyEventPopup(event) {
   popup.innerHTML = `
         <h2>Modify Event</h2>
         <label for="eventName">Event Name:</label>
-        <input type="text" id="eventName" value="${
+        <input type="text" class="mb-1" id="eventName" value="${
           eventDetails.name
         }" required><br>
         <label for="eventTime">Event Time:</label>
-        <input type="time" step="3600000" id="eventTime" value="${
+        <input type="time" class="mb-1" step="3600000" id="eventTime" value="${
           eventDetails.time
         }" required><br>
         <label for="eventDate">Event Date:</label>
-        <input type="date" id="eventDate" value="${
+        <input type="date" class="mb-1" id="eventDate" value="${
           eventDetails.date
         }" required><br>
         <label for="eventCategory">Category:</label>
-        <select id="eventCategory" name="category">
+        <select id="eventCategory" class="mb-2" name="category">
             <option value="family" ${
               eventDetails.category === "family" ? "selected" : ""
             }>Family</option>
@@ -547,10 +547,10 @@ function showModifyEventPopup(event) {
             <option value="gaming" ${
               eventDetails.category === "gaming" ? "selected" : ""
             }>Gaming</option>
-        </select>
-        <button onclick="saveModifiedEvent(event, '${eventID}')">Save Changes</button>
-        <button onclick="deleteEvent('${eventID}')">Delete Event</button>
-        <button onclick="closePopup()">Cancel</button>
+        </select> <br>
+        <button class="btn btn-primary btn-sm" onclick="saveModifiedEvent(event, '${eventID}')">Save Changes</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteEvent('${eventID}')">Delete Event</button>
+        <button class="btn btn-secondary btn-sm" onclick="closePopup()">Cancel</button>
     `;
   document.body.appendChild(popup);
 }
@@ -660,7 +660,7 @@ function createExcuseButton(newEventDiv) {
   generateExcuseButton.setAttribute("type", "button");
   generateExcuseButton.setAttribute(
     "class",
-    "btn btn-outline-primary excuse-button"
+    "btn btn-outline-primary btn-sm btn-block excuse-button"
   );
   generateExcuseButton.textContent = "Generate excuse!";
   generateExcuseButton.addEventListener("click", generateExcuse);
