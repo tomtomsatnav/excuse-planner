@@ -330,7 +330,7 @@ function showEventPopup(event) {
   }
 
   var popup = document.createElement("div");
-  popup.setAttribute("class", "event-popup bg-white border-primary mb-3 p-3");
+  popup.setAttribute("class", "event-popup bg-white border border-3 px-4 py-2 rounded-2");
 
   var mouseX = event.clientX;
   var mouseY = event.clientY;
@@ -364,15 +364,25 @@ function showEventPopup(event) {
   }
 
   popup.innerHTML = `
-        <h2>Create Event</h2>
-        <label for="eventName">Event Name:</label>
-        <input type="text" class="mb-1" id="eventName" required><br>
-        <label for="eventTime">Event Time:</label>
-        <input type="time" class="mb-1" step="3600000" id="eventTime" value=${selectedEventTime} required><br>
-        <label for="eventDate">Event Date:</label>
-        <input type="date" class="mb-1" id="eventDate" value=${selectedEventDate} required><br>
+    <form>
+        <h5>Create Event</h5>
+        <div class="row mb-2">
+        <label class="sr-only" for="eventName">Event Name:</label>
+        <input type="text" class="form-control-lg" id="eventName" placeholder="Add title">
+        </div>
+        <div class="row mb-2">
+          <div class="col px-0 mr-1">
+            <label class="sr-only" for="eventTime">Event Time:</label>
+            <input type="time" class="form-control mb-1" step="3600000" id="eventTime" value=${selectedEventTime} required>  
+          </div>
+          <div class="col px-0">
+            <label class="sr-only" for="eventDate">Event Date:</label>
+            <input type="date" class="form-control" id="eventDate" value=${selectedEventDate} required>
+          </div>
+        </div>
+        <div class="row mb-2">
         <label for="eventCategory">Category:</label>
-        <select id="eventCategory" class="mb-2" name="category">
+        <select id="eventCategory" class="form-control" name="category">
         <option value="family">Family</option>
         <option value="office">Office</option>
         <option value="children">Children</option>
@@ -382,9 +392,11 @@ function showEventPopup(event) {
         <option value="unbelievable">Unbelievable</option>
         <option value="developers">Developer</option>
         <option value="gaming">Gaming</option>
-        </select> <br>
+        </select>
+        </div>
         <button class="btn btn-secondary btn-sm popup-button" onclick="closePopup()">Cancel</button>
         <button class="btn btn-primary btn-sm popup-button" onclick="saveEvent(event)">Save Event</button>
+    </form>
     `;
   document.body.appendChild(popup);
 }
@@ -473,7 +485,7 @@ function showModifyEventPopup(event) {
     document.body.removeChild(existingPopup);
   }
   var popup = document.createElement("div");
-  popup.setAttribute("class", "event-popup bg-white border-primary mb-3 p-3");
+  popup.setAttribute("class", "event-popup bg-white border border-3 px-4 py-2 rounded-2");
 
   var mouseX = event.clientX;
   var mouseY = event.clientY;
@@ -505,52 +517,64 @@ function showModifyEventPopup(event) {
   console.log(eventDetails.name);
 
   popup.innerHTML = `
-        <h2>Modify Event</h2>
-        <label for="eventName">Event Name:</label>
-        <input type="text" class="mb-1" id="eventName" value="${
-          eventDetails.name
-        }" required><br>
-        <label for="eventTime">Event Time:</label>
-        <input type="time" class="mb-1" step="3600000" id="eventTime" value="${
+  <form>
+    <h5>Modify Event</h5>
+    <div class="row mb-2">
+      <label class="sr-only" for="eventName">Event Name:</label>
+      <input type="text" class="form-control-lg" id="eventName" placeholder="Add title" value="${
+        eventDetails.name
+      }">
+    </div>
+    <div class="row mb-2">
+      <div class="col px-0 mr-1">
+        <label class="sr-only" for="eventTime">Event Time:</label>
+        <input type="time" class="form-control mb-1" step="3600000" id="eventTime" value="${
           eventDetails.time
-        }" required><br>
-        <label for="eventDate">Event Date:</label>
-        <input type="date" class="mb-1" id="eventDate" value="${
+        }" required>  
+      </div>
+      <div class="col px-0">
+        <label class="sr-only" for="eventDate">Event Date:</label>
+        <input type="date" class="form-control" id="eventDate" value="${
           eventDetails.date
-        }" required><br>
-        <label for="eventCategory">Category:</label>
-        <select id="eventCategory" class="mb-2" name="category">
-            <option value="family" ${
-              eventDetails.category === "family" ? "selected" : ""
-            }>Family</option>
-            <option value="office" ${
-              eventDetails.category === "office" ? "selected" : ""
-            }>Office</option>
-            <option value="children" ${
-              eventDetails.category === "children" ? "selected" : ""
-            }>Children</option>
-            <option value="college" ${
-              eventDetails.category === "college" ? "selected" : ""
-            }>College</option>
-            <option value="party" ${
-              eventDetails.category === "party" ? "selected" : ""
-            }>Party</option>
-            <option value="funny" ${
-              eventDetails.category === "funny" ? "selected" : ""
-            }>Funny</option>
-            <option value="unbelievable" ${
-              eventDetails.category === "unbelievable" ? "selected" : ""
-            }>Unbelievable</option>
-            <option value="developers" ${
-              eventDetails.category === "developers" ? "selected" : ""
-            }>Developer</option>
-            <option value="gaming" ${
-              eventDetails.category === "gaming" ? "selected" : ""
-            }>Gaming</option>
-        </select> <br>
-        <button class="btn btn-primary btn-sm" onclick="saveModifiedEvent(event, '${eventID}')">Save Changes</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteEvent('${eventID}')">Delete Event</button>
-        <button class="btn btn-secondary btn-sm" onclick="closePopup()">Cancel</button>
+        }" required>
+      </div>
+    </div>
+    <div class="row mb-2">
+      <label for="eventCategory">Category:</label>
+      <select id="eventCategory" class="form-control" name="category">
+        <option value="family" ${
+          eventDetails.category === "family" ? "selected" : ""
+        }>Family</option>
+        <option value="office" ${
+          eventDetails.category === "office" ? "selected" : ""
+        }>Office</option>
+        <option value="children" ${
+          eventDetails.category === "children" ? "selected" : ""
+        }>Children</option>
+        <option value="college" ${
+          eventDetails.category === "college" ? "selected" : ""
+        }>College</option>
+        <option value="party" ${
+          eventDetails.category === "party" ? "selected" : ""
+        }>Party</option>
+        <option value="funny" ${
+          eventDetails.category === "funny" ? "selected" : ""
+        }>Funny</option>
+        <option value="unbelievable" ${
+          eventDetails.category === "unbelievable" ? "selected" : ""
+        }>Unbelievable</option>
+        <option value="developers" ${
+          eventDetails.category === "developers" ? "selected" : ""
+        }>Developer</option>
+        <option value="gaming" ${
+          eventDetails.category === "gaming" ? "selected" : ""
+        }>Gaming</option>
+      </select>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="saveModifiedEvent(event, '${eventID}')">Save Changes</button>
+    <button class="btn btn-danger btn-sm" onclick="deleteEvent('${eventID}')">Delete Event</button>
+    <button class="btn btn-secondary btn-sm" onclick="closePopup()">Cancel</button>
+  </form>
     `;
   document.body.appendChild(popup);
 }
