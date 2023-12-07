@@ -4,7 +4,7 @@ body{
 
 .container{
     max-width: 100%;
-    .box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 h1{
@@ -91,7 +91,6 @@ p{
        padding: 10px;
     border-bottom: 1px solid #acb0d6;
 }
-}
 
 /* time slots */
 
@@ -137,9 +136,6 @@ p{
 .bg-holiday {
     background-color: #CC444B;
     color: white;
-}
-
-.card-header {
 }
 
 .has-event {
