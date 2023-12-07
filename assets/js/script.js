@@ -373,10 +373,11 @@ function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
     var newEventDiv = document.createElement('div')
     newEventDiv.setAttribute('class', 'slot-event')
     newEventDiv.innerHTML = `
-        <h5 class="card-title">${eventDetails.name}</h5>
+        ${eventDetails.name}
     `
     createExcuseButton(newEventDiv)
     eventSlot.append(newEventDiv)
+
 };
 
 // TODO: Event block functions - button to modify event function
@@ -439,6 +440,7 @@ function generateExcuse(event) {
             refreshIcon = newExcuse.querySelector('i')
             refreshIcon.addEventListener('click', generateExcuse)
             selectedEventSlotDiv.append(newExcuse)
+            createDeleteButton(newEventDiv)
 
             // store excuse to local storage
             localStorage.setItem(excuseStorageID, randomExcuse)
@@ -454,4 +456,12 @@ function generateExcuse(event) {
 
 // TODO: Delete event functions - function to delete event from calendar
 
+function createDeleteButton(newEventDiv) {
+var deleteButton = document.createElement('button')
+    deleteButton.setAttribute('type', 'button')
+    deleteButton.setAttribute('class', 'btn btn-outline-primary delete-button')
+    deleteButton.textContent = "X"
+    //deleteButton.addEventListener('click', //remove function// )
+    newEventDiv.append(deleteButton)
+}
 // TODO: Delete event functions - function to delete event from local storage
