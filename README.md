@@ -20,6 +20,10 @@ An example of a generated excuse;
 
 ![image](https://github.com/kane-chang/excuse-planner/assets/4332402/f585b554-5442-4978-a821-f95166152ca9)
 
+An example of modifying an excuse;
+
+![image](https://github.com/kane-chang/excuse-planner/assets/4332402/34e4df36-0e81-458e-bd94-66ec6412a895)
+
 
 # Use
 
