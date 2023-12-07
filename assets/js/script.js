@@ -609,10 +609,10 @@ function saveModifiedEvent(event, eventID) {
   var eventDetailsJSON = JSON.stringify(eventDetails);
   if (eventID != newEventID) {
     localStorage.setItem(newEventID, eventDetailsJSON);
-    // localStorage.removeItem(eventID);
     deleteEvent(eventID);
+    localStorage.removeItem(eventID);
   }
-  localStorage.setItem(eventID, eventDetailsJSON);
+  localStorage.setItem(newEventID, eventDetailsJSON);
   updateModifiedScheduleDisplay(eventHour, eventDay, eventMonth, eventYear);
   closePopup();
   return { eventHour, eventDay, eventMonth, eventYear };
