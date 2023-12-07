@@ -47,3 +47,17 @@
     float: right;
     margin: 0 0.5vh;
 }
+
+/* setting colors */
+
+.bg-holiday {
+    background-color: #CC444B;
+    color: white;
+}
+
+.card-header {
+}
+
+.has-event {
+    background-color: #FFF3E6;
+}

@@ -157,7 +157,7 @@ function generateWeek() {
       .week(selectedWeek)
       .startOf("week")
       .add(i, "day")
-      .format("ddd D.M.YY");
+      .format("ddd<br>D.M.YY");
     dateID =
       "d" +
       dayjs()
@@ -174,7 +174,7 @@ function generateWeek() {
     // console.log(dateID);
     selectedDates.push(dateID);
     datesForHolidayAPI.push(dateHolidayFormat);
-    weekHeaders[i].textContent = formattedDate;
+    weekHeaders[i].innerHTML = formattedDate;
   }
 
   // console.log(selectedDates.toString());
@@ -315,6 +315,7 @@ function fetchHolidays() {
             var holidayID = "#" + selectedDates[j]; // get the correct unique date ID
             var holidayDiv = document.querySelector(holidayID); // selects correct holidayDiv
             holidayDiv.textContent = data["england-and-wales"].events[i].title; // updates text to show the holiday name
+            holidayDiv.setAttribute("class", "list-group-item holiday bg-holiday")
           }
         }
       }
@@ -467,6 +468,7 @@ function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
 
   var newEventDiv = document.createElement("div");
   newEventDiv.setAttribute("class", "slot-event");
+  eventSlot.classList.add("has-event")
   // newEventDiv.innerHTML = `
   //     <h5 class="card-title">${eventDetails.name}</h5>
   // `
@@ -642,8 +644,8 @@ function updateModifiedScheduleDisplay(
 
   var newEventDiv = document.createElement("div");
   newEventDiv.setAttribute("class", "slot-event");
-  newEventDiv.setAttribute("class", "slot-event");
-
+  eventSlot.classList.add("has-event")
+  
   newEventDiv.textContent = eventDetails.name;
   eventSlot.removeEventListener("click", showEventPopup);
   eventSlot.addEventListener("click", showModifyEventPopup);
