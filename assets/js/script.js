@@ -63,6 +63,7 @@ var hoursArray = [
 ];
 
 // TODO: Time slot functions - generate unique id / generate the timeblock with id
+// TODO: retrieve saved local storage events and display when generating timeslots
 function generateTimeSlots() {
   // *removes any existing timeslots first*//
   for (let j = 0; j < timeSlotSections.length; j++) {
@@ -123,7 +124,6 @@ function generateTimeSlots() {
         }
       }
 
-
       //   newTimeSlot.addEventListener("click", function (event) {
       //     if (localStorage.getItem(timeSlotID)) {
       //       showModifyEventPopup(event);
@@ -134,7 +134,6 @@ function generateTimeSlots() {
     }
   }
 }
-// TODO: retrieve saved local storage events and display when generating timeslots
 
 // TODO: Dayjs functions - get current week and display correct formattedDates
 // TODO: Dayjs functions - get next week and display next week formattedDates
@@ -258,7 +257,7 @@ function nextWeek() {
   closePopup();
 }
 
-// TODO: Dayjs functions - highlight current day column?
+// TODO: Dayjs functions - highlight current day column
 function highlightCurrentDay() {
   var currentDay = dayjs().format("-DD-MM-YYYY-");
   // for (let i = 0; i < 25; i++) {
@@ -292,7 +291,6 @@ function removeCurrentDayHighlight() {
 
 // TODO: Holiday API functions - fetch and match formattedDate to holiday
 // TODO: Holiday API functions - display holiday to calendar
-
 function fetchHolidays() {
   var holidaysURL = "https://www.gov.uk/bank-holidays.json";
   fetch(holidaysURL)
@@ -322,15 +320,6 @@ function fetchHolidays() {
       }
     });
 }
-
-//* All of the called functions on start up *//
-generateWeek();
-generateTimeSlots();
-highlightCurrentDay();
-createPreviousWeekButton();
-createTodayWeekButton();
-createNextWeekButton();
-fetchHolidays();
 
 // TODO: Event Creation functions - create pop up with user input fields
 function showEventPopup(event) {
@@ -455,7 +444,7 @@ function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
   console.log(eventSlot);
   if (eventSlot == null) {
     console.log("oh nooooo");
-    return
+    return;
   }
   eventSlot.removeChild(eventSlot.lastChild);
 
@@ -470,86 +459,10 @@ function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
   //     <h5 class="card-title">${eventDetails.name}</h5>
   // `
   newEventDiv.textContent = eventDetails.name;
-  eventSlot.removeEventListener("click", showEventPopup)
-  eventSlot.addEventListener("click", showModifyEventPopup)
+  eventSlot.removeEventListener("click", showEventPopup);
+  eventSlot.addEventListener("click", showModifyEventPopup);
   createExcuseButton(newEventDiv);
   eventSlot.append(newEventDiv);
-}
-
-// TODO: Event block functions - button to modify event function
-
-// TODO: Event block functions - generate excuse function
-// TODO: Event block functions - regenerate excuse function
-function createExcuseButton(newEventDiv) {
-  var generateExcuseButton = document.createElement("button");
-  generateExcuseButton.setAttribute("type", "button");
-  generateExcuseButton.setAttribute(
-    "class",
-    "btn btn-outline-primary excuse-button"
-  );
-  generateExcuseButton.textContent = "Generate excuse!";
-  generateExcuseButton.addEventListener("click", generateExcuse);
-  newEventDiv.append(generateExcuseButton);
-}
-
-function generateExcuse(event) {
-  if (event.target.parentElement.parentElement.matches(".time-slot")) {
-    var eventID = event.target.parentElement.parentElement.getAttribute("id");
-  } else {
-    var eventID =
-      event.target.parentElement.parentElement.parentElement.getAttribute("id");
-  }
-  // console.log(event.target.parentElement.parentElement);
-  var eventDetails = JSON.parse(localStorage.getItem(eventID));
-  var excuseStorageID = eventID + "excuse";
-
-  // console.log(eventDetails);
-  var excuserURL =
-    "https://excuser-three.vercel.app/v1/excuse/" + eventDetails.category;
-  fetch(excuserURL)
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (data) {
-      // console.log(data);
-      // console.log(data[0].excuse);
-      if (event.target.matches("i")) {
-        selectedEventSlotDiv = event.target.parentElement.parentElement;
-      } else {
-        selectedEventSlotDiv = event.target.parentElement;
-      }
-      // console.log(selectedEventSlotDiv);
-      if (selectedEventSlotDiv.querySelector("button")) {
-        selectedEventSlotDiv.removeChild(
-          selectedEventSlotDiv.querySelector("button")
-        );
-        if (localStorage.getItem(excuseStorageID)) {
-          var randomExcuse = localStorage.getItem(excuseStorageID);
-        } else {
-          var randomExcuse = data[0].excuse;
-        }
-      } else if (selectedEventSlotDiv.querySelector("p")) {
-        selectedEventSlotDiv.removeChild(
-          selectedEventSlotDiv.querySelector("p")
-        );
-        randomExcuse = data[0].excuse;
-      }
-
-      refreshIcon = document.createElement("i");
-      refreshIcon.setAttribute("class", "fa-solid fa-arrows-rotate");
-
-      newExcuse = document.createElement("p");
-      newExcuse.setAttribute("class", "text-secondary excuse-text");
-      newExcuse.innerHTML = `
-            ${randomExcuse} <i class='fa-solid fa-arrows-rotate'>
-            `;
-      refreshIcon = newExcuse.querySelector("i");
-      refreshIcon.addEventListener("click", generateExcuse);
-      selectedEventSlotDiv.append(newExcuse);
-
-      // store excuse to local storage
-      localStorage.setItem(excuseStorageID, randomExcuse);
-    });
 }
 
 // TODO: Modify event functions - function to modify event details
@@ -642,41 +555,6 @@ function showModifyEventPopup(event) {
   document.body.appendChild(popup);
 }
 
-function updateModifiedScheduleDisplay(
-  eventHour,
-  eventDay,
-  eventMonth,
-  eventYear
-) {
-  if (eventYear < 100) {
-    eventYear = "20" + eventYear;
-  }
-  var eventID =
-    "d" + "-" + eventDay + "-" + eventMonth + "-" + eventYear + "-" + eventHour;
-  console.log(eventID);
-  var eventSlot = document.querySelector("#" + eventID);
-  if (eventSlot == null) {
-    return
-  }
-  console.log(eventSlot);
-  eventSlot.removeChild(eventSlot.lastChild);
-
-  console.log(eventID);
-
-  eventDetails = JSON.parse(localStorage.getItem(eventID));
-  console.log(eventDetails);
-
-  var newEventDiv = document.createElement("div");
-  newEventDiv.setAttribute("class", "slot-event");
-  newEventDiv.setAttribute("class", "slot-event");
-
-  newEventDiv.textContent = eventDetails.name;
-  eventSlot.removeEventListener("click", showEventPopup)
-  eventSlot.addEventListener("click", showModifyEventPopup)
-  createExcuseButton(newEventDiv);
-  eventSlot.append(newEventDiv);
-}
-
 function saveModifiedEvent(event, eventID) {
   var eventName = document.getElementById("eventName").value;
   var eventDate = document.getElementById("eventDate").value;
@@ -706,7 +584,7 @@ function saveModifiedEvent(event, eventID) {
   if (eventID != newEventID) {
     localStorage.setItem(newEventID, eventDetailsJSON);
     // localStorage.removeItem(eventID);
-    deleteEvent(eventID)
+    deleteEvent(eventID);
   }
   localStorage.setItem(eventID, eventDetailsJSON);
   updateModifiedScheduleDisplay(eventHour, eventDay, eventMonth, eventYear);
@@ -714,14 +592,40 @@ function saveModifiedEvent(event, eventID) {
   return { eventHour, eventDay, eventMonth, eventYear };
 }
 
-// timeContainer.addEventListener('click', function (event) {
-//     console.log("Clicked element:", event.target);
-//     var target = event.target;
-//     if (target.classList.contains('slot-event')) {
-//         showModifyEventPopup(event);
-//         console.log("Clicked element:", event.target);
-//     }
-// });
+function updateModifiedScheduleDisplay(
+  eventHour,
+  eventDay,
+  eventMonth,
+  eventYear
+) {
+  if (eventYear < 100) {
+    eventYear = "20" + eventYear;
+  }
+  var eventID =
+    "d" + "-" + eventDay + "-" + eventMonth + "-" + eventYear + "-" + eventHour;
+  console.log(eventID);
+  var eventSlot = document.querySelector("#" + eventID);
+  if (eventSlot == null) {
+    return;
+  }
+  console.log(eventSlot);
+  eventSlot.removeChild(eventSlot.lastChild);
+
+  console.log(eventID);
+
+  eventDetails = JSON.parse(localStorage.getItem(eventID));
+  console.log(eventDetails);
+
+  var newEventDiv = document.createElement("div");
+  newEventDiv.setAttribute("class", "slot-event");
+  newEventDiv.setAttribute("class", "slot-event");
+
+  newEventDiv.textContent = eventDetails.name;
+  eventSlot.removeEventListener("click", showEventPopup);
+  eventSlot.addEventListener("click", showModifyEventPopup);
+  createExcuseButton(newEventDiv);
+  eventSlot.append(newEventDiv);
+}
 
 // TODO: Delete event functions - function to delete event from calendar
 function deleteEvent(eventID) {
@@ -743,8 +647,91 @@ function deleteEvent(eventID) {
   eventSlot.parentNode.replaceChild(newTimeSlot, eventSlot);
   newTimeSlot.addEventListener("click", showEventPopup);
   localStorage.removeItem(eventID);
-  eventExcuse = eventID + "excuse"
-  localStorage.removeItem(eventExcuse)
+  eventExcuse = eventID + "excuse";
+  localStorage.removeItem(eventExcuse);
 
   closePopup();
 }
+
+// TODO: Event block functions - generate excuse function
+// TODO: Event block functions - regenerate excuse function
+function createExcuseButton(newEventDiv) {
+  var generateExcuseButton = document.createElement("button");
+  generateExcuseButton.setAttribute("type", "button");
+  generateExcuseButton.setAttribute(
+    "class",
+    "btn btn-outline-primary excuse-button"
+  );
+  generateExcuseButton.textContent = "Generate excuse!";
+  generateExcuseButton.addEventListener("click", generateExcuse);
+  newEventDiv.append(generateExcuseButton);
+}
+
+function generateExcuse(event) {
+  if (event.target.parentElement.parentElement.matches(".time-slot")) {
+    var eventID = event.target.parentElement.parentElement.getAttribute("id");
+  } else {
+    var eventID =
+      event.target.parentElement.parentElement.parentElement.getAttribute("id");
+  }
+  // console.log(event.target.parentElement.parentElement);
+  var eventDetails = JSON.parse(localStorage.getItem(eventID));
+  var excuseStorageID = eventID + "excuse";
+
+  // console.log(eventDetails);
+  var excuserURL =
+    "https://excuser-three.vercel.app/v1/excuse/" + eventDetails.category;
+  fetch(excuserURL)
+    .then(function (response) {
+      return response.json();
+    })
+    .then(function (data) {
+      // console.log(data);
+      // console.log(data[0].excuse);
+      if (event.target.matches("i")) {
+        selectedEventSlotDiv = event.target.parentElement.parentElement;
+      } else {
+        selectedEventSlotDiv = event.target.parentElement;
+      }
+      // console.log(selectedEventSlotDiv);
+      if (selectedEventSlotDiv.querySelector("button")) {
+        selectedEventSlotDiv.removeChild(
+          selectedEventSlotDiv.querySelector("button")
+        );
+        if (localStorage.getItem(excuseStorageID)) {
+          var randomExcuse = localStorage.getItem(excuseStorageID);
+        } else {
+          var randomExcuse = data[0].excuse;
+        }
+      } else if (selectedEventSlotDiv.querySelector("p")) {
+        selectedEventSlotDiv.removeChild(
+          selectedEventSlotDiv.querySelector("p")
+        );
+        randomExcuse = data[0].excuse;
+      }
+
+      refreshIcon = document.createElement("i");
+      refreshIcon.setAttribute("class", "fa-solid fa-arrows-rotate");
+
+      newExcuse = document.createElement("p");
+      newExcuse.setAttribute("class", "text-secondary excuse-text");
+      newExcuse.innerHTML = `
+            ${randomExcuse} <i class='fa-solid fa-arrows-rotate'>
+            `;
+      refreshIcon = newExcuse.querySelector("i");
+      refreshIcon.addEventListener("click", generateExcuse);
+      selectedEventSlotDiv.append(newExcuse);
+
+      // store excuse to local storage
+      localStorage.setItem(excuseStorageID, randomExcuse);
+    });
+}
+
+//* All of the called functions on start up *//
+generateWeek();
+generateTimeSlots();
+highlightCurrentDay();
+createPreviousWeekButton();
+createTodayWeekButton();
+createNextWeekButton();
+fetchHolidays();
