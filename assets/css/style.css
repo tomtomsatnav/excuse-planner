@@ -1,7 +1,7 @@
 /* setting same height for cells */
 
 .card-header, .list-group-item {
-    height: 8vh;
+    height: 9vh;
 }
 
 /* setting holiday line */
@@ -23,13 +23,41 @@
 }
 
 .slot-event{
-    font-size: 0.5em;
+    font-size: 0.8em;
 }
 
 .slot-hour {
-    font-size: 0.7em;
+    font-size: 0.8em;
 }
 
 .daycard .list-group-item {
     padding: 0.2em;
+}
+
+.excuse-button { 
+    display: block;
+    font-size: 0.8em;
+}
+
+.excuse-text {
+    font-size: 0.7em;
+}
+
+.popup-button {
+    float: right;
+    margin: 0 0.5vh;
+}
+
+/* setting colors */
+
+.bg-holiday {
+    background-color: #CC444B;
+    color: white;
+}
+
+.card-header {
+}
+
+.has-event {
+    background-color: #FFF3E6;
 }

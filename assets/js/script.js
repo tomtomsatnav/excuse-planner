@@ -61,68 +61,9 @@ var hoursArray = [
   "10pm",
   "11pm",
 ];
-var timeContainer = document.querySelector("#time-container");
-var buttonsContainer = document.querySelector("#buttons-container");
-var sunTimeSection = document.querySelector("#sun-hours");
-var monTimeSection = document.querySelector("#mon-hours");
-var tueTimeSection = document.querySelector("#tue-hours");
-var wedTimeSection = document.querySelector("#wed-hours");
-var thurTimeSection = document.querySelector("#thur-hours");
-var friTimeSection = document.querySelector("#fri-hours");
-var satTimeSection = document.querySelector("#sat-hours");
-var sunHeader = document.querySelector("#sun-header");
-var monHeader = document.querySelector("#mon-header");
-var tueHeader = document.querySelector("#tue-header");
-var wedHeader = document.querySelector("#wed-header");
-var thurHeader = document.querySelector("#thur-header");
-var friHeader = document.querySelector("#fri-header");
-var satHeader = document.querySelector("#sat-header");
-var timeSlotSections = [
-  sunTimeSection,
-  monTimeSection,
-  tueTimeSection,
-  wedTimeSection,
-  thurTimeSection,
-  friTimeSection,
-  satTimeSection,
-];
-var weekHeaders = [
-  sunHeader,
-  monHeader,
-  tueHeader,
-  wedHeader,
-  thurHeader,
-  friHeader,
-  satHeader,
-];
-var hoursArray = [
-  "12am",
-  "1am",
-  "2am",
-  "3am",
-  "4am",
-  "5am",
-  "6am",
-  "7am",
-  "8am",
-  "9am",
-  "10am",
-  "11am",
-  "12pm",
-  "1pm",
-  "2pm",
-  "3pm",
-  "4pm",
-  "5pm",
-  "6pm",
-  "7pm",
-  "8pm",
-  "9pm",
-  "10pm",
-  "11pm",
-];
 
 // TODO: Time slot functions - generate unique id / generate the timeblock with id
+// TODO: retrieve saved local storage events and display when generating timeslots
 function generateTimeSlots() {
   // *removes any existing timeslots first*//
   for (let j = 0; j < timeSlotSections.length; j++) {
@@ -144,6 +85,7 @@ function generateTimeSlots() {
         timeSlotID = selectedDates[j]; // first list element is for holiday dates
         newTimeSlot.setAttribute("id", timeSlotID); // unique ID for each time slot
         newTimeSlot.setAttribute("class", "list-group-item holiday"); // adds bootstrap classes and holiday class
+        timeSlotSections[j].appendChild(newTimeSlot); //append to column
       } else {
         timeSlotID = selectedDates[j] + (i - 1); // the remaining hours (0 - 24)
         newTimeSlot.setAttribute("id", timeSlotID); // unique ID for each time slot
@@ -157,30 +99,31 @@ function generateTimeSlots() {
         newHourDiv.textContent = hoursArray[i - 1];
         newTimeSlot.append(newHourDiv, newEventDiv);
         // newEventDiv.textContent = timeSlotID;
-      }
 
-      timeSlotSections[j].appendChild(newTimeSlot); //append to column
+        timeSlotSections[j].appendChild(newTimeSlot); //append to column
 
-      //** to retrieve localstorage data **//
-      if (localStorage.getItem(timeSlotID)) {
-        // console.log("there's an item in " + timeSlotID);
-        var informationFromID = timeSlotID.split("-");
-        // console.log(informationFromID);
-        updateScheduleDisplay(
-          informationFromID[4],
-          informationFromID[1],
-          informationFromID[2],
-          informationFromID[3]
-        );
-        excuseID = timeSlotID + "excuse";
-        if (localStorage.getItem(excuseID)) {
-          var excuseButton = newTimeSlot.querySelector(".excuse-button");
-          excuseButton.click();
+        //** to retrieve localstorage data **//
+        if (localStorage.getItem(timeSlotID)) {
+          console.log("there's an item in " + timeSlotID);
+          var informationFromID = timeSlotID.split("-");
+          // console.log(informationFromID);
+          updateScheduleDisplay(
+            informationFromID[4],
+            informationFromID[1],
+            informationFromID[2],
+            informationFromID[3]
+          );
+          excuseID = timeSlotID + "excuse";
+          if (localStorage.getItem(excuseID)) {
+            var excuseButton = newTimeSlot.querySelector(".excuse-button");
+            excuseButton.click();
+          }
+          newTimeSlot.addEventListener("click", showModifyEventPopup);
+        } else {
+          newTimeSlot.addEventListener("click", showEventPopup);
         }
-        newTimeSlot.addEventListener("click", showModifyEventPopup);
-      } else {
-        newTimeSlot.addEventListener("click", showEventPopup);
       }
+
       //   newTimeSlot.addEventListener("click", function (event) {
       //     if (localStorage.getItem(timeSlotID)) {
       //       showModifyEventPopup(event);
@@ -191,7 +134,6 @@ function generateTimeSlots() {
     }
   }
 }
-// TODO: retrieve saved local storage events and display when generating timeslots
 
 // TODO: Dayjs functions - get current week and display correct formattedDates
 // TODO: Dayjs functions - get next week and display next week formattedDates
@@ -215,7 +157,7 @@ function generateWeek() {
       .week(selectedWeek)
       .startOf("week")
       .add(i, "day")
-      .format("ddd D.M.YY");
+      .format("ddd<br>D.M.YY");
     dateID =
       "d" +
       dayjs()
@@ -232,7 +174,7 @@ function generateWeek() {
     // console.log(dateID);
     selectedDates.push(dateID);
     datesForHolidayAPI.push(dateHolidayFormat);
-    weekHeaders[i].textContent = formattedDate;
+    weekHeaders[i].innerHTML = formattedDate;
   }
 
   // console.log(selectedDates.toString());
@@ -273,6 +215,7 @@ function createNextWeekButton() {
 
 function previousWeek() {
   var weekChange = timeContainer.getAttribute("data-week-change");
+  removeCurrentDayHighlight();
   weekChange -= 1;
   // console.log("previous week clicked: " + weekChange);
   timeContainer.setAttribute("data-week-change", weekChange);
@@ -301,6 +244,7 @@ function todayWeek() {
 
 function nextWeek() {
   var weekChange = timeContainer.getAttribute("data-week-change");
+  removeCurrentDayHighlight();
   weekChange = parseInt(weekChange) + 1;
   // console.log("next week clicked: " + weekChange);
   timeContainer.setAttribute("data-week-change", weekChange);
@@ -313,27 +257,40 @@ function nextWeek() {
   closePopup();
 }
 
-// TODO: Dayjs functions - highlight current day column?
+// TODO: Dayjs functions - highlight current day column
 function highlightCurrentDay() {
-  currentDay = dayjs().format("-DD-MM-YYYY-");
-  for (let i = 0; i < 25; i++) {
-    if (i == 0) {
-      var currentDayID = "#d" + currentDay;
-    } else {
-      var currentDayID = "#d" + currentDay + (i - 1);
-    }
-    // console.log(currentDayID);
+  var currentDay = dayjs().format("-DD-MM-YYYY-");
+  // for (let i = 0; i < 25; i++) {
+  //     if (i == 0) {
+  var currentDayID = "#d" + currentDay;
+  // } else {
+  //     var currentDayID = '#d' + currentDay + (i - 1)
+  // }
+  // console.log(currentDayID);
+  var currentTimeSlot = document.querySelector(currentDayID);
+  currentTimeSlot.parentElement.parentElement.setAttribute(
+    "class",
+    "card daycard border-success border-2"
+  );
+  // currentTimeSlot.setAttribute('class', 'time-slot list-group-item current-day')
+  // }
+}
+
+function removeCurrentDayHighlight() {
+  var weekChange = timeContainer.getAttribute("data-week-change");
+  if (weekChange == 0) {
+    var currentDay = dayjs().format("-DD-MM-YYYY-");
+    var currentDayID = "#d" + currentDay;
     var currentTimeSlot = document.querySelector(currentDayID);
-    currentTimeSlot.setAttribute(
+    currentTimeSlot.parentElement.parentElement.setAttribute(
       "class",
-      "time-slot list-group-item bg-secondary"
+      "card daycard"
     );
   }
 }
 
 // TODO: Holiday API functions - fetch and match formattedDate to holiday
 // TODO: Holiday API functions - display holiday to calendar
-
 function fetchHolidays() {
   var holidaysURL = "https://www.gov.uk/bank-holidays.json";
   fetch(holidaysURL)
@@ -358,20 +315,12 @@ function fetchHolidays() {
             var holidayID = "#" + selectedDates[j]; // get the correct unique date ID
             var holidayDiv = document.querySelector(holidayID); // selects correct holidayDiv
             holidayDiv.textContent = data["england-and-wales"].events[i].title; // updates text to show the holiday name
+            holidayDiv.setAttribute("class", "list-group-item holiday bg-holiday")
           }
         }
       }
     });
 }
-
-//* All of the called functions on start up *//
-generateWeek();
-generateTimeSlots();
-highlightCurrentDay();
-createPreviousWeekButton();
-createTodayWeekButton();
-createNextWeekButton();
-fetchHolidays();
 
 // TODO: Event Creation functions - create pop up with user input fields
 function showEventPopup(event) {
@@ -382,7 +331,7 @@ function showEventPopup(event) {
   }
 
   var popup = document.createElement("div");
-  popup.setAttribute("class", "event-popup bg-white border-primary mb-3 p-3");
+  popup.setAttribute("class", "event-popup bg-white border border-3 px-4 py-2 rounded-2");
 
   var mouseX = event.clientX;
   var mouseY = event.clientY;
@@ -416,15 +365,25 @@ function showEventPopup(event) {
   }
 
   popup.innerHTML = `
-        <h2>Create Event</h2>
-        <label for="eventName">Event Name:</label>
-        <input type="text" id="eventName" required><br>
-        <label for="eventTime">Event Time:</label>
-        <input type="time" step="3600000" id="eventTime" value=${selectedEventTime} required><br>
-        <label for="eventDate">Event Date:</label>
-        <input type="date" id="eventDate" value=${selectedEventDate} required><br>
+    <form>
+        <h5>Create Event</h5>
+        <div class="row mb-2">
+        <label class="sr-only" for="eventName">Event Name:</label>
+        <input type="text" class="form-control-lg" id="eventName" placeholder="Add title">
+        </div>
+        <div class="row mb-2">
+          <div class="col px-0 mr-1">
+            <label class="sr-only" for="eventTime">Event Time:</label>
+            <input type="time" class="form-control mb-1" step="3600000" id="eventTime" value=${selectedEventTime} required>  
+          </div>
+          <div class="col px-0">
+            <label class="sr-only" for="eventDate">Event Date:</label>
+            <input type="date" class="form-control" id="eventDate" value=${selectedEventDate} required>
+          </div>
+        </div>
+        <div class="row mb-2">
         <label for="eventCategory">Category:</label>
-        <select id="eventCategory" name="category">
+        <select id="eventCategory" class="form-control" name="category">
         <option value="family">Family</option>
         <option value="office">Office</option>
         <option value="children">Children</option>
@@ -435,8 +394,10 @@ function showEventPopup(event) {
         <option value="developers">Developer</option>
         <option value="gaming">Gaming</option>
         </select>
-        <button onclick="saveEvent(event)">Save Event</button>
-        <button onclick="closePopup()">Cancel</button>
+        </div>
+        <button class="btn btn-secondary btn-sm popup-button" onclick="closePopup()">Cancel</button>
+        <button class="btn btn-primary btn-sm popup-button" onclick="saveEvent(event)">Save Event</button>
+    </form>
     `;
   document.body.appendChild(popup);
 }
@@ -494,6 +455,10 @@ function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
   console.log(eventID);
   var eventSlot = document.querySelector("#" + eventID);
   console.log(eventSlot);
+  if (eventSlot == null) {
+    console.log("oh nooooo");
+    return;
+  }
   eventSlot.removeChild(eventSlot.lastChild);
 
   console.log(eventID);
@@ -503,14 +468,216 @@ function updateScheduleDisplay(eventHour, eventDay, eventMonth, eventYear) {
 
   var newEventDiv = document.createElement("div");
   newEventDiv.setAttribute("class", "slot-event");
-  newEventDiv.innerHTML = `
-        <h5 class="card-title">${eventDetails.name}</h5>
-    `;
+  eventSlot.classList.add("has-event")
+  // newEventDiv.innerHTML = `
+  //     <h5 class="card-title">${eventDetails.name}</h5>
+  // `
+  newEventDiv.textContent = eventDetails.name;
+  eventSlot.removeEventListener("click", showEventPopup);
+  eventSlot.addEventListener("click", showModifyEventPopup);
   createExcuseButton(newEventDiv);
   eventSlot.append(newEventDiv);
 }
 
-// TODO: Event block functions - button to modify event function
+// TODO: Modify event functions - function to modify event details
+
+function showModifyEventPopup(event) {
+  var existingPopup = document.querySelector(".event-popup");
+  if (existingPopup) {
+    document.body.removeChild(existingPopup);
+  }
+  var popup = document.createElement("div");
+  popup.setAttribute("class", "event-popup bg-white border border-3 px-4 py-2 rounded-2");
+
+  var mouseX = event.clientX;
+  var mouseY = event.clientY;
+
+  var popupWidth = 300;
+  var popupHeight = 600;
+
+  var maxX = window.innerWidth - popupWidth;
+  var maxY = window.innerHeight - popupHeight;
+
+  var adjustedX = Math.min(mouseX, maxX);
+  var adjustedY = Math.min(mouseY, maxY);
+
+  popup.style.position = "fixed";
+  popup.style.top = `${adjustedY}px`;
+  popup.style.left = `${adjustedX}px`;
+
+  if (event.target.matches(".slot-event")) {
+    var eventID = event.target.parentElement.getAttribute("id");
+  } else if (event.target.matches(".time-slot")) {
+    var eventID = event.target.getAttribute("id");
+  } else if (event.target.matches("i") || event.target.matches("button")) {
+    return;
+  } else {
+    var eventID = event.target.parentElement.parentElement.getAttribute("id");
+  }
+  console.log(event.target.parentElement.parentElement);
+  var eventDetails = JSON.parse(localStorage.getItem(eventID));
+  console.log(eventDetails.name);
+
+  popup.innerHTML = `
+  <form>
+    <h5>Modify Event</h5>
+    <div class="row mb-2">
+      <label class="sr-only" for="eventName">Event Name:</label>
+      <input type="text" class="form-control-lg" id="eventName" placeholder="Add title" value="${
+        eventDetails.name
+      }">
+    </div>
+    <div class="row mb-2">
+      <div class="col px-0 mr-1">
+        <label class="sr-only" for="eventTime">Event Time:</label>
+        <input type="time" class="form-control mb-1" step="3600000" id="eventTime" value="${
+          eventDetails.time
+        }" required>  
+      </div>
+      <div class="col px-0">
+        <label class="sr-only" for="eventDate">Event Date:</label>
+        <input type="date" class="form-control" id="eventDate" value="${
+          eventDetails.date
+        }" required>
+      </div>
+    </div>
+    <div class="row mb-2">
+      <label for="eventCategory">Category:</label>
+      <select id="eventCategory" class="form-control" name="category">
+        <option value="family" ${
+          eventDetails.category === "family" ? "selected" : ""
+        }>Family</option>
+        <option value="office" ${
+          eventDetails.category === "office" ? "selected" : ""
+        }>Office</option>
+        <option value="children" ${
+          eventDetails.category === "children" ? "selected" : ""
+        }>Children</option>
+        <option value="college" ${
+          eventDetails.category === "college" ? "selected" : ""
+        }>College</option>
+        <option value="party" ${
+          eventDetails.category === "party" ? "selected" : ""
+        }>Party</option>
+        <option value="funny" ${
+          eventDetails.category === "funny" ? "selected" : ""
+        }>Funny</option>
+        <option value="unbelievable" ${
+          eventDetails.category === "unbelievable" ? "selected" : ""
+        }>Unbelievable</option>
+        <option value="developers" ${
+          eventDetails.category === "developers" ? "selected" : ""
+        }>Developer</option>
+        <option value="gaming" ${
+          eventDetails.category === "gaming" ? "selected" : ""
+        }>Gaming</option>
+      </select>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="saveModifiedEvent(event, '${eventID}')">Save Changes</button>
+    <button class="btn btn-danger btn-sm" onclick="deleteEvent('${eventID}')">Delete Event</button>
+    <button class="btn btn-secondary btn-sm" onclick="closePopup()">Cancel</button>
+  </form>
+    `;
+  document.body.appendChild(popup);
+}
+
+function saveModifiedEvent(event, eventID) {
+  var eventName = document.getElementById("eventName").value;
+  var eventDate = document.getElementById("eventDate").value;
+  var eventTime = document.getElementById("eventTime").value;
+  var eventCategory = document.getElementById("eventCategory").value;
+
+  var eventDetails = {
+    name: eventName,
+    date: eventDate,
+    time: eventTime,
+    category: eventCategory,
+  };
+
+  if (parseInt(eventDate.substring(8, 10), 10) < 10) {
+    var eventDay = "0" + parseInt(eventDate.substring(8, 10), 10);
+  } else {
+    var eventDay = parseInt(eventDate.substring(8, 10), 10);
+  }
+  var eventHour = parseInt(eventTime.substring(0, 2), 10);
+  var eventMonth = parseInt(eventDate.substring(5, 7), 10);
+  var eventYear = parseInt(eventDate.substring(2, 4), 10);
+
+  console.log(eventHour, eventDay, eventMonth, eventYear);
+  var newEventID =
+    "d-" + eventDay + "-" + eventMonth + "-20" + eventYear + "-" + eventHour;
+  var eventDetailsJSON = JSON.stringify(eventDetails);
+  if (eventID != newEventID) {
+    localStorage.setItem(newEventID, eventDetailsJSON);
+    // localStorage.removeItem(eventID);
+    deleteEvent(eventID);
+  }
+  localStorage.setItem(eventID, eventDetailsJSON);
+  updateModifiedScheduleDisplay(eventHour, eventDay, eventMonth, eventYear);
+  closePopup();
+  return { eventHour, eventDay, eventMonth, eventYear };
+}
+
+function updateModifiedScheduleDisplay(
+  eventHour,
+  eventDay,
+  eventMonth,
+  eventYear
+) {
+  if (eventYear < 100) {
+    eventYear = "20" + eventYear;
+  }
+  var eventID =
+    "d" + "-" + eventDay + "-" + eventMonth + "-" + eventYear + "-" + eventHour;
+  console.log(eventID);
+  var eventSlot = document.querySelector("#" + eventID);
+  if (eventSlot == null) {
+    return;
+  }
+  console.log(eventSlot);
+  eventSlot.removeChild(eventSlot.lastChild);
+
+  console.log(eventID);
+
+  eventDetails = JSON.parse(localStorage.getItem(eventID));
+  console.log(eventDetails);
+
+  var newEventDiv = document.createElement("div");
+  newEventDiv.setAttribute("class", "slot-event");
+  eventSlot.classList.add("has-event")
+  
+  newEventDiv.textContent = eventDetails.name;
+  eventSlot.removeEventListener("click", showEventPopup);
+  eventSlot.addEventListener("click", showModifyEventPopup);
+  createExcuseButton(newEventDiv);
+  eventSlot.append(newEventDiv);
+}
+
+// TODO: Delete event functions - function to delete event from calendar
+function deleteEvent(eventID) {
+  var eventTime = document.getElementById("eventTime").value;
+  var eventHour = parseInt(eventTime.substring(0, 24), 10);
+  var eventHourConverted = hoursArray[eventHour - 1];
+
+  var newTimeSlot = document.createElement("li");
+  newTimeSlot.setAttribute("id", eventID); // unique ID that was deleted and need to be replaced
+  newTimeSlot.setAttribute("class", "time-slot list-group-item");
+  var newHourDiv = document.createElement("div");
+  var newEventDiv = document.createElement("div");
+  newHourDiv.setAttribute("class", "slot-hour d-block d-lg-none");
+  newEventDiv.setAttribute("class", "slot-event");
+  newHourDiv.textContent = eventHourConverted; // get eventHour from the deleted div
+  newTimeSlot.append(newHourDiv, newEventDiv);
+
+  var eventSlot = document.querySelector("#" + eventID);
+  eventSlot.parentNode.replaceChild(newTimeSlot, eventSlot);
+  newTimeSlot.addEventListener("click", showEventPopup);
+  localStorage.removeItem(eventID);
+  eventExcuse = eventID + "excuse";
+  localStorage.removeItem(eventExcuse);
+
+  closePopup();
+}
 
 // TODO: Event block functions - generate excuse function
 // TODO: Event block functions - regenerate excuse function
@@ -519,7 +686,7 @@ function createExcuseButton(newEventDiv) {
   generateExcuseButton.setAttribute("type", "button");
   generateExcuseButton.setAttribute(
     "class",
-    "btn btn-outline-primary excuse-button"
+    "btn btn-outline-primary btn-sm btn-block excuse-button"
   );
   generateExcuseButton.textContent = "Generate excuse!";
   generateExcuseButton.addEventListener("click", generateExcuse);
@@ -586,191 +753,11 @@ function generateExcuse(event) {
     });
 }
 
-// TODO: Modify event functions - function to modify event details
-
-function showModifyEventPopup(event) {
-  var existingPopup = document.querySelector(".event-popup");
-  if (existingPopup) {
-    document.body.removeChild(existingPopup);
-  }
-  var popup = document.createElement("div");
-  popup.setAttribute("class", "event-popup bg-white border-primary mb-3 p-3");
-
-  var mouseX = event.clientX;
-  var mouseY = event.clientY;
-
-  var popupWidth = 300;
-  var popupHeight = 600;
-
-  var maxX = window.innerWidth - popupWidth;
-  var maxY = window.innerHeight - popupHeight;
-
-  var adjustedX = Math.min(mouseX, maxX);
-  var adjustedY = Math.min(mouseY, maxY);
-
-  popup.style.position = "fixed";
-  popup.style.top = `${adjustedY}px`;
-  popup.style.left = `${adjustedX}px`;
-
-  if (event.target.matches(".slot-event")) {
-    var eventID = event.target.parentElement.getAttribute("id")
-  } else if (event.target.matches(".time-slot")) {
-    var eventID = event.target.getAttribute("id")
-  } else if (event.target.matches("i")) {
-    return
-  } else {
-    var eventID = event.target.parentElement.parentElement.getAttribute("id");
-  }
-  console.log(event.target.parentElement.parentElement);
-  var eventDetails = JSON.parse(localStorage.getItem(eventID));
-  console.log(eventDetails.name);
-
-  popup.innerHTML = `
-        <h2>Modify Event</h2>
-        <label for="eventName">Event Name:</label>
-        <input type="text" id="eventName" value="${
-          eventDetails.name
-        }" required><br>
-        <label for="eventTime">Event Time:</label>
-        <input type="time" step="3600000" id="eventTime" value="${
-          eventDetails.time
-        }" required><br>
-        <label for="eventDate">Event Date:</label>
-        <input type="date" id="eventDate" value="${
-          eventDetails.date
-        }" required><br>
-        <label for="eventCategory">Category:</label>
-        <select id="eventCategory" name="category">
-            <option value="family" ${
-              eventDetails.category === "family" ? "selected" : ""
-            }>Family</option>
-            <option value="office" ${
-              eventDetails.category === "office" ? "selected" : ""
-            }>Office</option>
-            <option value="children" ${
-              eventDetails.category === "children" ? "selected" : ""
-            }>Children</option>
-            <option value="college" ${
-              eventDetails.category === "college" ? "selected" : ""
-            }>College</option>
-            <option value="party" ${
-              eventDetails.category === "party" ? "selected" : ""
-            }>Party</option>
-            <option value="funny" ${
-              eventDetails.category === "funny" ? "selected" : ""
-            }>Funny</option>
-            <option value="unbelievable" ${
-              eventDetails.category === "unbelievable" ? "selected" : ""
-            }>Unbelievable</option>
-            <option value="developers" ${
-              eventDetails.category === "developers" ? "selected" : ""
-            }>Developer</option>
-            <option value="gaming" ${
-              eventDetails.category === "gaming" ? "selected" : ""
-            }>Gaming</option>
-        </select>
-        <button onclick="saveModifiedEvent(event, '${eventID}')">Save Changes</button>
-        <button onclick="deleteEvent('${eventID}')">Delete Event</button>
-        <button onclick="closePopup()">Cancel</button>
-    `;
-  document.body.appendChild(popup);
-}
-
-function updateModifiedScheduleDisplay(
-  eventHour,
-  eventDay,
-  eventMonth,
-  eventYear
-) {
-  if (eventYear < 100) {
-    eventYear = "20" + eventYear;
-  }
-  var eventID =
-    "d" + "-" + eventDay + "-" + eventMonth + "-" + eventYear + "-" + eventHour;
-  console.log(eventID);
-  var eventSlot = document.querySelector("#" + eventID);
-  console.log(eventSlot);
-  eventSlot.removeChild(eventSlot.lastChild);
-
-  console.log(eventID);
-
-  eventDetails = JSON.parse(localStorage.getItem(eventID));
-  console.log(eventDetails);
-
-  var newEventDiv = document.createElement("div");
-  newEventDiv.setAttribute("class", "slot-event");
-  newEventDiv.innerHTML = `
-        <h5 class="card-title">${eventDetails.name}</h5>
-    `;
-  createExcuseButton(newEventDiv);
-  eventSlot.append(newEventDiv);
-}
-
-function saveModifiedEvent(event, eventID) {
-  var eventName = document.getElementById("eventName").value;
-  var eventDate = document.getElementById("eventDate").value;
-  var eventTime = document.getElementById("eventTime").value;
-  var eventCategory = document.getElementById("eventCategory").value;
-
-  var eventDetails = {
-    name: eventName,
-    date: eventDate,
-    time: eventTime,
-    category: eventCategory,
-  };
-
-  if (parseInt(eventDate.substring(8, 10), 10) < 10) {
-    var eventDay = "0" + parseInt(eventDate.substring(8, 10), 10);
-  } else {
-    var eventDay = parseInt(eventDate.substring(8, 10), 10);
-  }
-  var eventHour = parseInt(eventTime.substring(0, 2), 10);
-  var eventMonth = parseInt(eventDate.substring(5, 7), 10);
-  var eventYear = parseInt(eventDate.substring(2, 4), 10);
-
-  console.log(eventHour, eventDay, eventMonth, eventYear);
-  var newEventID =
-    "d-" + eventDay + "-" + eventMonth + "-20" + eventYear + "-" + eventHour;
-  var eventDetailsJSON = JSON.stringify(eventDetails);
-  if (eventID != newEventID) {
-    localStorage.setItem(newEventID, eventDetailsJSON);
-    localStorage.removeItem(eventID);
-  }
-  localStorage.setItem(eventID, eventDetailsJSON);
-  updateModifiedScheduleDisplay(eventHour, eventDay, eventMonth, eventYear);
-  closePopup();
-  return { eventHour, eventDay, eventMonth, eventYear };
-}
-
-// timeContainer.addEventListener('click', function (event) {
-//     console.log("Clicked element:", event.target);
-//     var target = event.target;
-//     if (target.classList.contains('slot-event')) {
-//         showModifyEventPopup(event);
-//         console.log("Clicked element:", event.target);
-//     }
-// });
-
-// TODO: Delete event functions - function to delete event from calendar
-function deleteEvent(eventID) {
-  var eventTime = document.getElementById("eventTime").value;
-  var eventHour = parseInt(eventTime.substring(0, 24), 10);
-  var eventHourConverted = hoursArray[eventHour - 1];
-
-  var newTimeSlot = document.createElement("li");
-  newTimeSlot.setAttribute("id", eventID); // unique ID that was deleted and need to be replaced
-  newTimeSlot.setAttribute("class", "time-slot list-group-item");
-  var newHourDiv = document.createElement("div");
-  var newEventDiv = document.createElement("div");
-  newHourDiv.setAttribute("class", "slot-hour d-block d-lg-none");
-  newEventDiv.setAttribute("class", "slot-event");
-  newHourDiv.textContent = eventHourConverted; // get eventHour from the deleted div
-  newTimeSlot.append(newHourDiv, newEventDiv);
-
-  var eventSlot = document.querySelector("#" + eventID);
-  eventSlot.parentNode.replaceChild(newTimeSlot, eventSlot);
-  newTimeSlot.addEventListener("click", showEventPopup);
-  localStorage.removeItem(eventID);
-
-  closePopup();
-}
+//* All of the called functions on start up *//
+generateWeek();
+generateTimeSlots();
+highlightCurrentDay();
+createPreviousWeekButton();
+createTodayWeekButton();
+createNextWeekButton();
+fetchHolidays();
