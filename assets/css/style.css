@@ -1,3 +1,55 @@
+body{
+    background-color: #ffffff;
+}
+
+.container{
+    max-width: 100%;
+    .box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1{
+    color: #7d82ac;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(150, 150, 150, 0.1);
+    border: 1px solid #acb0d6;
+    border-radius: 10px;
+
+}
+
+p{ 
+    text-align: center;
+    color: #7d82ac;
+    box-shadow: 0 4px 8px rgba(150, 150, 150, 0.1);
+    border: 1px solid #acb0d6;
+    border-radius: 50px;
+}
+
+.col-lg .card{
+    background-color: #ffffff;
+    border: 1px solid #7d82ac;
+    color: black;
+}
+
+
+.hourCol{
+    background-color: #a67bd1;
+    border: 1px solid #acb0d6;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(150, 150, 150, 0.1);
+}
+
+.hourCol .card-header{
+    background-color: #7d82ac;
+    color:black;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid #3ea1c8;
+    border-radius: 8px 8px 0 0;
+}
+
+
+
+
 /* setting same height for cells */
 
 .card-header, .list-group-item {
@@ -10,16 +62,48 @@
     height: 5vh;
 }
 
+
+.daycard .list-group-item.holiday{
+    background-color: #e4dfe1;
+    color: aqua;
+    font-weight: bold;
+}
+
+
+.daycard{
+    background-color: #fff3e6;
+    border: 1px solid #acb0d6;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(150, 150, 150, 0.1);
+}
+
+
+.daycard .list-group-item {
+    padding: 0.2em;
+    border: none;
+    border-bottom: 1px solid #acb0d6;
+}
+
 /* hours text centered */
 
 .hourCol .list-group-item {
     text-align: center;
+       padding: 10px;
+    border-bottom: 1px solid #acb0d6;
+}
 }
 
 /* time slots */
 
 .time-slot {
     display: flex;
+}
+
+.daycard .list-group-item.time-slot{
+    background-color: rgb(234, 228, 239);
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+
 }
 
 .slot-event{
