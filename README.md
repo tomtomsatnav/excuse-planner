@@ -1,6 +1,6 @@
 # Excuse-Planner
 
-Created using HTML, CSS, JavaScript and Bootstrap. This planner gives the user a smiple way to come up with a good reason to excuse themselves from events and it also gives them a platform to make and manage their own events.
+Created using HTML, CSS, JavaScript and Bootstrap. This planner gives the user a simple way to come up with a good reason to excuse themselves from events and it also gives them a platform to make and manage their own events.
 
 # Excuse-Planner Screenshot
 
